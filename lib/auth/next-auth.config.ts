@@ -1,9 +1,15 @@
 import { AuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { prisma } from '@/lib/prisma';
+import { PrismaClient, User } from '@prisma/client'; // On importe PrismaClient et User ici
 import { compare } from 'bcrypt';
-import type { User } from '@prisma/client';
+
+// ====================================================================
+// == CORRECTION APPLIQUÉE ICI ==
+// On initialise PrismaClient directement dans ce fichier
+// au lieu de l'importer depuis un chemin qui n'existe pas.
+// ====================================================================
+const prisma = new PrismaClient();
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -30,6 +36,11 @@ export const authOptions: AuthOptions = {
           throw new Error('User not found');
         }
 
+        // On s'assure que user.password n'est pas null avant de comparer
+        if (!user.password) {
+          throw new Error('User password is not set');
+        }
+
         const isValid = await compare(credentials.password, user.password);
 
         if (!isValid) {
@@ -52,19 +63,22 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
       }
       
-      const shouldRefreshTime = Math.floor((token.exp! - Date.now() / 1000)) < 24 * 60 * 60;
-      
-      if (shouldRefreshTime) {
-        return {
-          ...token,
-          exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-        };
+      // La logique de rafraîchissement du token peut être complexe,
+      // je la laisse telle quelle mais assurez-vous que token.exp existe.
+      if (token.exp) {
+        const shouldRefreshTime = Math.floor((token.exp - Date.now() / 1000)) < 24 * 60 * 60;
+        if (shouldRefreshTime) {
+          return {
+            ...token,
+            exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+          };
+        }
       }
 
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as User['role'];
       }
@@ -77,10 +91,12 @@ export const authOptions: AuthOptions = {
   },
   events: {
     async signIn({ user }) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { lastLogin: new Date() },
-      });
+      if (user.id) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLogin: new Date() },
+        });
+      }
     },
   },
 };
