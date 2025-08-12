@@ -18,6 +18,7 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   bookings  Booking[]
+  lastLogin DateTime? // Ajout pour l'événement signIn
 }
 
 enum Role {
@@ -51,18 +52,21 @@ model Booking {
   courseId              String
   date                  DateTime
   status                Status   @default(PENDING)
-      
-  // Champs de paiement ajoutés
-  stripePaymentIntentId String?  @unique // L'ID de paiement de Stripe, optionnel et unique
-  paymentStatus         String?  // Statut du paiement (ex: 'PAID', 'UNPAID')
-  amount                Decimal? @db.Decimal(10, 2) // Montant payé
-  currency              String?  // Devise (ex: 'eur')
+  
+  // ====================================================================
+  // == CORRECTION APPLIQUÉE ICI : Ajout des champs de paiement ==
+  // ====================================================================
+  stripePaymentIntentId String?  @unique
+  paymentStatus         String?
+  amount                Decimal? @db.Decimal(10, 2)
+  currency              String?
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   user                  User     @relation(fields: [userId], references: [id])
   course                Course   @relation(fields: [courseId], references: [id])
 }
+
 enum Status {
   PENDING
   CONFIRMED
