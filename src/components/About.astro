@@ -1,0 +1,123 @@
+---
+interface Props {
+  lang: 'fr' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const translations = {
+  fr: {
+    title: "À propos",
+    subtitle: "Bienvenue chez Studio Élan",
+    description: "Fondé en 2018 par Sophie Martin, Studio Élan est un espace dédié à la pratique du yoga et à la méditation au cœur de Paris. Notre approche allie tradition et modernité pour vous offrir des cours adaptés à tous les niveaux, qu'il s'agisse de votre première expérience ou que vous soyez un yogi expérimenté.",
+    philosophy: {
+      title: "Notre philosophie",
+      items: [
+        {
+          icon: "✨",
+          title: "Calme",
+          description: "Nous créons un environnement paisible où vous pouvez vous déconnecter du stress quotidien."
+        },
+        {
+          icon: "💫",
+          title: "Énergie",
+          description: "Nos cours sont conçus pour équilibrer et revitaliser votre énergie vitale."
+        },
+        {
+          icon: "🌱",
+          title: "Ancrage",
+          description: "Nous vous guidons vers une connexion plus profonde avec vous-même et votre environnement."
+        }
+      ]
+    }
+  },
+  en: {
+    title: "About",
+    subtitle: "Welcome to Studio Élan",
+    description: "Founded in 2018 by Sophie Martin, Studio Élan is a space dedicated to the practice of yoga and meditation in the heart of Paris. Our approach combines tradition and modernity to offer classes suitable for all levels, whether it's your first experience or you're an experienced yogi.",
+    philosophy: {
+      title: "Our Philosophy",
+      items: [
+        {
+          icon: "✨",
+          title: "Calm",
+          description: "We create a peaceful environment where you can disconnect from daily stress."
+        },
+        {
+          icon: "💫",
+          title: "Energy",
+          description: "Our classes are designed to balance and revitalize your vital energy."
+        },
+        {
+          icon: "🌱",
+          title: "Grounding",
+          description: "We guide you towards a deeper connection with yourself and your environment."
+        }
+      ]
+    }
+  }
+};
+
+const t = translations[lang];
+---
+
+<section id="about" class="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
+  <div class="container mx-auto px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+          {t.title}
+        </h2>
+        <div class="w-24 h-1 bg-primary-500 mx-auto mb-8"></div>
+        <p class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-serif">
+          {t.subtitle}
+        </p>
+      </div>
+      
+      <div class="flex flex-col md:flex-row gap-12 items-center">
+        <!-- Image -->
+        <div class="md:w-1/2">
+          <div class="relative">
+            <img 
+              src="https://images.pexels.com/photos/7937386/pexels-photo-7937386.jpeg" 
+              alt="Yoga instructor" 
+              class="rounded-lg shadow-lg object-cover h-[500px] w-full"
+            />
+            <div class="absolute -bottom-6 -right-6 h-24 w-24 bg-accent-500 rounded-full flex items-center justify-center text-white font-serif text-lg">
+              <span>Since<br />2018</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Text content -->
+        <div class="md:w-1/2">
+          <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-8">
+            {t.description}
+          </p>
+          
+          <h3 class="text-2xl font-serif font-bold text-gray-900 dark:text-white mb-6">
+            {t.philosophy.title}
+          </h3>
+          
+          <div class="space-y-6">
+            {t.philosophy.items.map(item => (
+              <div class="flex items-start">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-2xl">
+                  {item.icon}
+                </div>
+                <div class="ml-4">
+                  <h4 class="text-xl font-medium text-gray-900 dark:text-white mb-1">
+                    {item.title}
+                  </h4>
+                  <p class="text-gray-600 dark:text-gray-400">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

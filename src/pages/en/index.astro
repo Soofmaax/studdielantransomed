@@ -1,0 +1,69 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Hero from '../../components/Hero.astro';
+import About from '../../components/About.astro';
+import Services from '../../components/Services.astro';
+import Contact from '../../components/Contact.astro';
+import Footer from '../../components/Footer.astro';
+
+// Page metadata
+const title = "Yoga Classes in Paris – Studio Élan";
+const description = "Studio Élan offers yoga and meditation classes for all levels in a calm and bright space in the heart of Paris.";
+---
+
+<Layout 
+  title={title}
+  description={description}
+  lang="en"
+  currentPath="/en/"
+>
+  <Header lang="en" />
+  <Hero lang="en" />
+  <About lang="en" />
+  <Services lang="en" />
+  <Contact lang="en" />
+  <Footer lang="en" />
+
+  <!-- Structured data for local business (JSON-LD) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Studio Élan",
+      "image": "https://studio-elan.netlify.app/images/og-image.jpg",
+      "description": "Yoga and meditation studio in Paris",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 Champs-Élysées Avenue",
+        "addressLocality": "Paris",
+        "addressRegion": "Île-de-France",
+        "postalCode": "75008",
+        "addressCountry": "FR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 48.8698,
+        "longitude": 2.3075
+      },
+      "telephone": "+33123456789",
+      "url": "https://studio-elan.netlify.app/en/",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          "opens": "08:00",
+          "closes": "21:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Saturday", "Sunday"],
+          "opens": "09:00",
+          "closes": "18:00"
+        }
+      ],
+      "priceRange": "€€",
+      "currenciesAccepted": "EUR"
+    }
+  </script>
+</Layout>

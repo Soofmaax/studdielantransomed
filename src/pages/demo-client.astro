@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// This page is not indexed by search engines
+---
+
+<Layout 
+  title="Demo Client Page - Studio Élan"
+  description="This is a demo page for potential clients"
+  lang="en"
+  currentPath="/demo-client/"
+>
+  <meta name="robots" content="noindex" slot="head" />
+  
+  <div class="min-h-screen flex flex-col">
+    <header class="bg-primary-700 text-white py-8">
+      <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-bold font-serif">Studio Élan - Client Demo</h1>
+      </div>
+    </header>
+    
+    <main class="flex-grow py-12 container mx-auto px-4">
+      <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-6 text-primary-700">Welcome to the Client Demo</h2>
+        
+        <div class="mb-8 p-4 bg-accent-100 border-l-4 border-accent-500 text-accent-700">
+          <p class="font-bold">Important Note:</p>
+          <p>This page is a demonstration for potential clients. It is not indexed by search engines and can be shared directly with clients on platforms like Codeur or Fiverr.</p>
+        </div>
+        
+        <p class="mb-4">This multilingual yoga studio website demonstrates:</p>
+        
+        <ul class="list-disc ml-6 mb-8 space-y-2">
+          <li>Responsive design that works on all devices</li>
+          <li>Dark mode toggle functionality</li>
+          <li>Multilingual support (French and English)</li>
+          <li>SEO optimized structure</li>
+          <li>Performance optimized (Lighthouse 90+)</li>
+          <li>Beautiful, modern design with smooth animations</li>
+          <li>Functional contact form integration</li>
+        </ul>
+        
+        <p class="mb-6">The site also features:</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div class="bg-gray-50 p-4 rounded">
+            <h3 class="font-bold text-primary-700 mb-2">Technical Features</h3>
+            <ul class="list-disc ml-4 space-y-1 text-sm">
+              <li>Astro.js for static site generation</li>
+              <li>Tailwind CSS for styling</li>
+              <li>Vanilla JavaScript for interactions</li>
+              <li>Optimized images and assets</li>
+              <li>Proper semantic HTML structure</li>
+            </ul>
+          </div>
+          
+          <div class="bg-gray-50 p-4 rounded">
+            <h3 class="font-bold text-primary-700 mb-2">User Experience</h3>
+            <ul class="list-disc ml-4 space-y-1 text-sm">
+              <li>Intuitive navigation</li>
+              <li>Fast page loads</li>
+              <li>Smooth transitions</li>
+              <li>Accessible design</li>
+              <li>Cross-browser compatibility</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="flex justify-center space-x-4">
+          <a href="/fr/" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-colors duration-300">
+            View French Version
+          </a>
+          <a href="/en/" class="bg-secondary-600 hover:bg-secondary-700 text-white px-6 py-3 rounded-lg transition-colors duration-300">
+            View English Version
+          </a>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="bg-gray-100 py-6">
+      <div class="container mx-auto px-4 text-center text-gray-600">
+        <p>This is a fictional site created as a demo by Salwa Essaif, freelance web developer.</p>
+      </div>
+    </footer>
+  </div>
+</Layout>

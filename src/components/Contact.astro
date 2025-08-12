@@ -1,0 +1,234 @@
+---
+interface Props {
+  lang: 'fr' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const translations = {
+  fr: {
+    title: "Contact",
+    subtitle: "Prenez rendez-vous ou posez-nous vos questions",
+    disclaimer: "Attention : ce site est fictif, vous contactez la développeuse web.",
+    name: "Nom",
+    email: "Email",
+    phone: "Téléphone (optionnel)",
+    subject: {
+      label: "Sujet",
+      options: [
+        "Demande d'informations",
+        "Réservation de cours",
+        "Cours particulier",
+        "Autre"
+      ]
+    },
+    message: "Message",
+    submit: "Envoyer",
+    address: {
+      title: "Notre adresse",
+      street: "123 Avenue des Champs-Élysées",
+      city: "75008 Paris, France"
+    },
+    hours: {
+      title: "Heures d'ouverture",
+      weekdays: "Lundi - Vendredi : 8h - 21h",
+      weekend: "Samedi - Dimanche : 9h - 18h"
+    },
+    contact: {
+      title: "Contactez-nous",
+      email: "info@studio-elan.fr",
+      phone: "+33 1 23 45 67 89"
+    }
+  },
+  en: {
+    title: "Contact",
+    subtitle: "Book an appointment or ask us questions",
+    disclaimer: "Note: this is a fictional site, you are contacting the web developer.",
+    name: "Name",
+    email: "Email",
+    phone: "Phone (optional)",
+    subject: {
+      label: "Subject",
+      options: [
+        "Information request",
+        "Class booking",
+        "Private class",
+        "Other"
+      ]
+    },
+    message: "Message",
+    submit: "Send",
+    address: {
+      title: "Our Address",
+      street: "123 Champs-Élysées Avenue",
+      city: "75008 Paris, France"
+    },
+    hours: {
+      title: "Opening Hours",
+      weekdays: "Monday - Friday: 8am - 9pm",
+      weekend: "Saturday - Sunday: 9am - 6pm"
+    },
+    contact: {
+      title: "Contact Us",
+      email: "info@studio-elan.fr",
+      phone: "+33 1 23 45 67 89"
+    }
+  }
+};
+
+const t = translations[lang];
+---
+
+<section id="contact" class="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+        {t.title}
+      </h2>
+      <div class="w-24 h-1 bg-primary-500 mx-auto mb-8"></div>
+      <p class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-serif">
+        {t.subtitle}
+      </p>
+      <p class="text-lg text-accent-600 dark:text-accent-400 font-bold mt-4 max-w-2xl mx-auto">
+        {t.disclaimer}
+      </p>
+    </div>
+    
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col lg:flex-row gap-12">
+        <!-- Contact Info -->
+        <div class="lg:w-1/3">
+          <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 mb-8">
+            <div class="mb-8">
+              <h3 class="font-serif font-bold text-xl text-gray-900 dark:text-white mb-3">
+                {t.address.title}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400">{t.address.street}</p>
+              <p class="text-gray-600 dark:text-gray-400">{t.address.city}</p>
+            </div>
+            
+            <div class="mb-8">
+              <h3 class="font-serif font-bold text-xl text-gray-900 dark:text-white mb-3">
+                {t.hours.title}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-1">{t.hours.weekdays}</p>
+              <p class="text-gray-600 dark:text-gray-400">{t.hours.weekend}</p>
+            </div>
+            
+            <div>
+              <h3 class="font-serif font-bold text-xl text-gray-900 dark:text-white mb-3">
+                {t.contact.title}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-1">
+                <a href="mailto:info@studio-elan.fr" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300">
+                  {t.contact.email}
+                </a>
+              </p>
+              <p class="text-gray-600 dark:text-gray-400">
+                <a href="tel:+33123456789" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300">
+                  {t.contact.phone}
+                </a>
+              </p>
+            </div>
+          </div>
+          
+          <!-- Map (Fictional) -->
+          <div class="rounded-lg overflow-hidden shadow-lg h-64 bg-gray-200 dark:bg-gray-700">
+            <div class="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+              <span class="text-sm">Map placeholder</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Contact Form -->
+        <div class="lg:w-2/3">
+          <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
+            <form action="https://formspree.io/f/your-formspree-id" method="POST" class="space-y-6">
+              <input type="hidden" name="_language" value={lang} />
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.name} *
+                  </label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required 
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-300"
+                  />
+                </div>
+                
+                <div>
+                  <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.email} *
+                  </label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required 
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-300"
+                  />
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.phone}
+                  </label>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-300"
+                  />
+                </div>
+                
+                <div>
+                  <label for="subject" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.subject.label} *
+                  </label>
+                  <select 
+                    id="subject" 
+                    name="subject" 
+                    required 
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-300"
+                  >
+                    {t.subject.options.map(option => (
+                      <option value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t.message} *
+                </label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="6" 
+                  required 
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-300"
+                ></textarea>
+              </div>
+              
+              <div>
+                <button 
+                  type="submit" 
+                  class="w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium text-lg"
+                >
+                  {t.submit}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

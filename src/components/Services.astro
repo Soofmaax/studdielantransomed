@@ -1,0 +1,166 @@
+---
+interface Props {
+  lang: 'fr' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const translations = {
+  fr: {
+    title: "Nos Services",
+    subtitle: "Découvrez nos cours de yoga et méditation",
+    viewSchedule: "Voir les horaires",
+    bookClass: "Réserver un cours",
+    currency: "€",
+    services: [
+      {
+        title: "Yoga Vinyasa",
+        description: "Une pratique dynamique qui synchronise le mouvement et la respiration pour créer un flux continu. Idéal pour développer force, souplesse et concentration.",
+        price: "25",
+        duration: "60 min",
+        level: "Tous niveaux",
+        imageUrl: "https://images.pexels.com/photos/3822219/pexels-photo-3822219.jpeg",
+        schedule: "Lun, Mer, Ven 10h & 18h"
+      },
+      {
+        title: "Yin Yoga",
+        description: "Une pratique douce et méditative qui cible les tissus conjonctifs. Les postures sont maintenues plus longtemps pour favoriser la relaxation profonde.",
+        price: "22",
+        duration: "75 min",
+        level: "Tous niveaux",
+        imageUrl: "https://images.pexels.com/photos/3759657/pexels-photo-3759657.jpeg",
+        schedule: "Mar, Jeu 12h & 20h"
+      },
+      {
+        title: "Méditation",
+        description: "Des séances guidées pour apaiser l'esprit, réduire le stress et favoriser la conscience de soi. Une pratique accessible à tous pour cultiver la paix intérieure.",
+        price: "18",
+        duration: "45 min",
+        level: "Débutant à avancé",
+        imageUrl: "https://images.pexels.com/photos/8964015/pexels-photo-8964015.jpeg",
+        schedule: "Mer, Sam 9h & 17h"
+      }
+    ]
+  },
+  en: {
+    title: "Our Services",
+    subtitle: "Discover our yoga and meditation classes",
+    viewSchedule: "View schedule",
+    bookClass: "Book a class",
+    currency: "€",
+    services: [
+      {
+        title: "Vinyasa Yoga",
+        description: "A dynamic practice that synchronizes movement with breath to create a continuous flow. Ideal for developing strength, flexibility, and focus.",
+        price: "25",
+        duration: "60 min",
+        level: "All levels",
+        imageUrl: "https://images.pexels.com/photos/3822219/pexels-photo-3822219.jpeg",
+        schedule: "Mon, Wed, Fri 10am & 6pm"
+      },
+      {
+        title: "Yin Yoga",
+        description: "A gentle, meditative practice that targets connective tissues. Postures are held longer to promote deep relaxation and flexibility.",
+        price: "22",
+        duration: "75 min",
+        level: "All levels",
+        imageUrl: "https://images.pexels.com/photos/3759657/pexels-photo-3759657.jpeg",
+        schedule: "Tue, Thu 12pm & 8pm"
+      },
+      {
+        title: "Meditation",
+        description: "Guided sessions to calm the mind, reduce stress, and foster self-awareness. An accessible practice for everyone to cultivate inner peace.",
+        price: "18",
+        duration: "45 min",
+        level: "Beginner to advanced",
+        imageUrl: "https://images.pexels.com/photos/8964015/pexels-photo-8964015.jpeg",
+        schedule: "Wed, Sat 9am & 5pm"
+      }
+    ]
+  }
+};
+
+const t = translations[lang];
+---
+
+<section id="services" class="py-20">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+        {t.title}
+      </h2>
+      <div class="w-24 h-1 bg-primary-500 mx-auto mb-8"></div>
+      <p class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-serif">
+        {t.subtitle}
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {t.services.map((service, index) => (
+        <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2 group">
+          <div class="relative h-60 overflow-hidden">
+            <img 
+              src={service.imageUrl} 
+              alt={service.title} 
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <a 
+                href="#" 
+                class="bg-white text-gray-900 px-4 py-2 rounded-md font-medium transform -translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+              >
+                {t.viewSchedule}
+              </a>
+            </div>
+          </div>
+          
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white font-serif">
+                {service.title}
+              </h3>
+              <span class="text-accent-600 dark:text-accent-400 font-bold text-xl">
+                {service.price}{t.currency}
+              </span>
+            </div>
+            
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              {service.description}
+            </p>
+            
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+              <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
+                <span class="flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {service.duration}
+                </span>
+                <span class="flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                  {service.level}
+                </span>
+              </div>
+              
+              <div class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {service.schedule}
+              </div>
+              
+              <a 
+                href="#contact" 
+                class="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white px-4 py-3 rounded-md transition-colors duration-300"
+              >
+                {t.bookClass}
+              </a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

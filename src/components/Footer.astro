@@ -1,0 +1,51 @@
+---
+interface Props {
+  lang: 'fr' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const translations = {
+  fr: {
+    disclaimer: "Ce site est une démo créée par Salwa Essaif, développeuse web freelance",
+    rights: "Tous droits réservés",
+    fictionalSite: "Site fictif à but démonstratif",
+    legalMentions: "Mentions légales",
+    privacyPolicy: "Politique de confidentialité",
+  },
+  en: {
+    disclaimer: "This site is a demo created by Salwa Essaif, freelance web developer",
+    rights: "All rights reserved",
+    fictionalSite: "Fictional site for demonstration purposes",
+    legalMentions: "Legal Mentions",
+    privacyPolicy: "Privacy Policy",
+  }
+};
+
+const t = translations[lang];
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-gray-50 dark:bg-gray-800 py-12 mt-16 transition-colors duration-300">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-6">
+      <p class="text-accent-600 dark:text-accent-400 font-bold text-lg mb-2">{t.disclaimer}</p>
+      <p class="text-gray-500 dark:text-gray-400">{t.fictionalSite}</p>
+    </div>
+    
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-gray-500 dark:text-gray-400 mb-4 md:mb-0">
+        &copy; {currentYear} Studio Élan. {t.rights}.
+      </p>
+      
+      <div class="flex space-x-6">
+        <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300">
+          {t.legalMentions}
+        </a>
+        <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-300">
+          {t.privacyPolicy}
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

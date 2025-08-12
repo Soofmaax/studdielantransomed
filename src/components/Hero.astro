@@ -1,0 +1,73 @@
+---
+interface Props {
+  lang: 'fr' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const translations = {
+  fr: {
+    title: "Cours de yoga à Paris",
+    subtitle: "Trouvez votre équilibre",
+    description: "Des cours de yoga adaptés à tous les niveaux dans un espace calme et lumineux au cœur de Paris",
+    cta: "Découvrir nos cours",
+  },
+  en: {
+    title: "Yoga Classes in Paris",
+    subtitle: "Find Your Balance",
+    description: "Yoga classes for all levels in a calm and bright space in the heart of Paris",
+    cta: "Discover our classes",
+  }
+};
+
+const t = translations[lang];
+---
+
+<section class="relative h-screen-90 flex items-center justify-center overflow-hidden">
+  <!-- Background image with overlay -->
+  <div class="absolute inset-0 w-full h-full">
+    <img 
+      src="https://images.pexels.com/photos/4056723/pexels-photo-4056723.jpeg" 
+      alt="" 
+      class="absolute inset-0 w-full h-full object-cover"
+      fetchpriority="high"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+  </div>
+  
+  <!-- Content -->
+  <div class="container mx-auto px-4 relative z-10 text-center text-white">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-serif font-bold mb-4 slide-up">
+        <span class="text-accent-300">{t.title}</span> – Studio Élan
+      </h1>
+      <h2 class="text-2xl md:text-3xl font-serif mb-6 text-white/90 slide-up" style="animation-delay: 0.1s;">
+        {t.subtitle}
+      </h2>
+      <p class="text-lg md:text-xl mb-8 text-gray-100 max-w-2xl mx-auto slide-up" style="animation-delay: 0.2s;">
+        {t.description}
+      </p>
+      <a 
+        href="#services" 
+        class="inline-block bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 font-medium slide-up"
+        style="animation-delay: 0.3s;"
+      >
+        {t.cta}
+      </a>
+    </div>
+  </div>
+  
+  <!-- Scroll down indicator -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 fade-in" style="animation-delay: 1s;">
+    <a 
+      href="#about" 
+      class="flex flex-col items-center text-white hover:text-accent-300 transition-colors duration-300"
+      aria-label="Scroll down to about section"
+    >
+      <span class="text-sm mb-2 opacity-80">↓</span>
+      <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </a>
+  </div>
+</section>
