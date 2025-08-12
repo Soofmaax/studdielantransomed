@@ -27,9 +27,6 @@ const nextConfig = {
       'localhost',
     ],
     
-    // Configuration de qualité par défaut
-    quality: 85,
-    
     // Optimisations avancées
     minimumCacheTTL: 31536000, // 1 an
     dangerouslyAllowSVG: false,
@@ -122,7 +119,7 @@ const nextConfig = {
   },
 
   // Configuration du bundle splitting
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack } ) => {
     // Optimisations de production uniquement
     if (!dev && !isServer) {
       // Bundle splitting avancé
@@ -239,9 +236,6 @@ const nextConfig = {
 
   // Configuration expérimentale
   experimental: {
-    // Optimisations des fonts
-    optimizeFonts: true,
-    
     // Optimisations CSS
     optimizeCss: true,
     
@@ -316,4 +310,3 @@ if (process.env.ANALYZE === 'true') {
 } else {
   module.exports = nextConfig;
 }
-
