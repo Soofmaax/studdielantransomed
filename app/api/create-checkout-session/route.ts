@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client'; // J'importe Prisma.Decimal pour être explicite
 
 import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
@@ -21,7 +21,7 @@ interface ICourseData {
   id: string;
   title: string;
   description: string;
-  price: number;
+  price: number; // Le type ici est bien 'number'
   duration: number;
   capacity: number;
   level: string;
@@ -38,7 +38,7 @@ class CheckoutSessionService {
    * @returns Données du cours ou lance une erreur si introuvable
    */
   private static async getCourseData(courseId: string): Promise<ICourseData> {
-    const course = await prisma.course.findUnique({
+    const courseFromDb = await prisma.course.findUnique({
       where: { id: courseId },
       select: {
         id: true,
@@ -51,11 +51,18 @@ class CheckoutSessionService {
       },
     });
 
-    if (!course) {
+    if (!courseFromDb) {
       throw ApiErrorHandler.notFound(`Cours avec l'ID ${courseId} introuvable`);
     }
 
-    return course;
+    // ====================================================================
+    // == CORRECTION APPLIQUÉE ICI ==
+    // On convertit le prix de type Decimal (de Prisma) en type number.
+    // ====================================================================
+    return {
+      ...courseFromDb,
+      price: courseFromDb.price.toNumber(),
+    };
   }
 
   /**
@@ -204,7 +211,7 @@ async function handleCreateCheckoutSession(
       { status: 201 }
     );
   } catch (error) {
-    return ApiErrorHandler.handle(error);
+    return ApiErrorHandler.handle(error);.
   }
 }
 
@@ -218,4 +225,3 @@ export const POST = withAuth(handleCreateCheckoutSession);
  */
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
