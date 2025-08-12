@@ -1,0 +1,12 @@
+# Fichier de configuration pour déployer un projet Next.js sur Netlify
+[build]
+  # Commande pour construire le projet
+  command = "npm run build"
+      
+  # Dossier où se trouvent les fichiers finaux après le build
+  # Pour Next.js, c'est toujours .next
+  publish = ".next"
+
+[[plugins]]
+  # Plugin essentiel pour que Netlify comprenne Next.js
+  package = "@netlify/plugin-nextjs"
