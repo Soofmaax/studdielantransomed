@@ -49,7 +49,7 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\""
   },
-    "dependencies": {
+  "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.1.1",
@@ -82,6 +82,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pg": "^8.11.5",
     "pino": "^9.2.0",
     "pino-pretty": "^11.2.1",
     "react": "^18.2.0",
@@ -96,7 +97,6 @@
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
   },
-
   "devDependencies": {
     "@commitlint/cli": "^18.6.0",
     "@commitlint/config-conventional": "^18.6.0",
@@ -210,4 +210,3 @@
     ]
   }
 }
-
