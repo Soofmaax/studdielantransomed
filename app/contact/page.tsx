@@ -15,7 +15,6 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Handle form submission
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -37,14 +36,12 @@ export default function ContactPage() {
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       // ====================================================================
-      // == CORRECTION APPLIQUÉE ICI ==
-      // On vérifie le type de 'error' avant de le passer au logger.
+      // == CORRECTION FINALE ET DÉFINITIVE ==
+      // On formate le message d'erreur en une seule chaîne de caractères
+      // pour le passer au logger.
       // ====================================================================
-      let errorMessage = 'Une erreur inconnue est survenue';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      logger.error('Contact form submission failed:', errorMessage);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Contact form submission failed: ${errorMessage}`);
       
       toast({
         title: 'Erreur',
