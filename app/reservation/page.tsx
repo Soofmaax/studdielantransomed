@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import format from 'date-fns/format';
-import parse from 'date-fns/parse';
-import startOfWeek from 'date-fns/startOfWeek';
-import getDay from 'date-fns/getDay';
+// ====================================================================
+// == CORRECTION FINALE APPLIQUÉE ICI ==
+// On importe les fonctions de date-fns depuis le paquet principal
+// ====================================================================
+import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -36,7 +37,7 @@ interface CalendarEvent {
   title: string;
   start: Date;
   end: Date;
-  resource: any; // Vous pouvez typer plus précisément si nécessaire
+  resource: any;
 }
 
 // Définition d'un type pour le créneau sélectionné
@@ -45,7 +46,7 @@ interface SelectedSlot {
   end: Date;
   slots: Date[];
   action: 'select' | 'click' | 'doubleClick';
-  resource?: any; // Contient les données du cours si vous les attachez
+  resource?: any;
 }
 
 export default function ReservationPage() {
@@ -55,11 +56,6 @@ export default function ReservationPage() {
   const { handleSubmit } = useForm();
 
   const handleBooking = async () => {
-    // ====================================================================
-    // == CORRECTION APPLIQUÉE ICI ==
-    // On vérifie que 'user' et 'selectedSlot' ne sont pas null
-    // avant de tenter d'accéder à leurs propriétés.
-    // ====================================================================
     if (!user || !selectedSlot) {
       toast({
         title: 'Erreur',
@@ -69,7 +65,6 @@ export default function ReservationPage() {
       return;
     }
     
-    // On vérifie que le créneau sélectionné a bien les informations du cours
     if (!selectedSlot.resource?.id) {
         toast({
             title: 'Erreur',
@@ -89,7 +84,7 @@ export default function ReservationPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          courseId: selectedSlot.resource.id, // On utilise selectedSlot.resource.id
+          courseId: selectedSlot.resource.id,
           date: selectedSlot.start.toISOString(),
           userId: user.id,
         }),
@@ -102,7 +97,6 @@ export default function ReservationPage() {
 
       const session = await response.json();
       
-      // La session contient maintenant un champ 'url'
       if (session.data && session.data.url) {
         window.location.href = session.data.url;
       } else {
@@ -137,7 +131,6 @@ export default function ReservationPage() {
     );
   }
 
-  // Transformation des réservations en événements pour le calendrier
   const events: CalendarEvent[] = bookings.map(booking => ({
     id: booking.id,
     title: booking.course.title,
@@ -159,7 +152,6 @@ export default function ReservationPage() {
             endAccessor="end"
             style={{ height: 600 }}
             onSelectEvent={event => {
-              // Simuler la sélection d'un créneau quand on clique sur un événement
               setSelectedSlot({
                 start: event.start,
                 end: event.end,
