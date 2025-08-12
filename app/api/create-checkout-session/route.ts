@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { PrismaClient, Prisma } from '@prisma/client'; // J'importe Prisma.Decimal pour être explicite
+import { PrismaClient } from '@prisma/client';
 
 import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
@@ -56,8 +56,7 @@ class CheckoutSessionService {
     }
 
     // ====================================================================
-    // == CORRECTION APPLIQUÉE ICI ==
-    // On convertit le prix de type Decimal (de Prisma) en type number.
+    // == CORRECTION 1 : Conversion du prix Decimal en number ==
     // ====================================================================
     return {
       ...courseFromDb,
@@ -211,7 +210,10 @@ async function handleCreateCheckoutSession(
       { status: 201 }
     );
   } catch (error) {
-    return ApiErrorHandler.handle(error);.
+    // ====================================================================
+    // == CORRECTION 2 : Suppression du point en trop après le ; ==
+    // ====================================================================
+    return ApiErrorHandler.handle(error);
   }
 }
 
