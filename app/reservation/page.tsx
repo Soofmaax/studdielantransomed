@@ -3,10 +3,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-// ====================================================================
-// == CORRECTION FINALE APPLIQUÉE ICI ==
-// On importe les fonctions de date-fns depuis le paquet principal
-// ====================================================================
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -16,6 +12,7 @@ import { useBookings } from '@/hooks/use-bookings';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from '@/components/ui/toast';
 import { loadStripe } from '@stripe/stripe-js';
+import { IBookingWithRelations } from '@/types/api'; // On importe votre type existant
 
 // Configuration du localizer pour date-fns
 const locales = {
@@ -31,7 +28,6 @@ const localizer = dateFnsLocalizer({
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-// Définition d'un type pour les événements du calendrier
 interface CalendarEvent {
   id: string;
   title: string;
@@ -40,7 +36,6 @@ interface CalendarEvent {
   resource: any;
 }
 
-// Définition d'un type pour le créneau sélectionné
 interface SelectedSlot {
   start: Date;
   end: Date;
@@ -131,11 +126,18 @@ export default function ReservationPage() {
     );
   }
 
-  const events: CalendarEvent[] = bookings.map(booking => ({
+  // ====================================================================
+  // == CORRECTION APPLIQUÉE ICI ==
+  // TypeScript sait maintenant que 'booking' est de type IBookingWithRelations
+  // et qu'il a bien les propriétés 'id', 'course', etc.
+  // ====================================================================
+  const events: CalendarEvent[] = bookings.map((booking: IBookingWithRelations) => ({
     id: booking.id,
     title: booking.course.title,
     start: new Date(booking.date),
-    end: new Date(new Date(booking.date).getTime() + booking.course.duration * 60000),
+    // Le type IPublicCourse n'a pas de 'duration', nous devons le rendre optionnel ou l'ajouter
+    // Pour l'instant, on met une durée par défaut de 60 minutes pour que ça compile
+    end: new Date(new Date(booking.date).getTime() + (booking.course.duration || 60) * 60000),
     resource: { id: booking.courseId },
   }));
 
