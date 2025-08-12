@@ -1,8 +1,3 @@
-/**
- * Composant LazySection - Chargement paresseux artisanal
- * Optimise les performances avec Intersection Observer et React.lazy
- */
-
 'use client';
 
 import React, { 
@@ -16,6 +11,28 @@ import React, {
   ReactNode 
 } from 'react';
 import { cn } from '@/lib/utils';
+
+// ====================================================================
+// == CORRECTION 1 : Création d'un hook pour fusionner les refs ==
+// Ce hook résout le problème de la propriété en lecture seule.
+// ====================================================================
+const useCombinedRefs = <T extends any>(...refs: React.Ref<T>[]) => {
+  const targetRef = React.useRef<T>(null);
+
+  React.useEffect(() => {
+    refs.forEach(ref => {
+      if (!ref) return;
+
+      if (typeof ref === 'function') {
+        ref(targetRef.current);
+      } else {
+        (ref as React.MutableRefObject<T | null>).current = targetRef.current;
+      }
+    });
+  }, [refs]);
+
+  return targetRef;
+};
 
 /**
  * Options pour l'Intersection Observer
@@ -86,7 +103,6 @@ function useIntersectionObserver(
     };
   }, [handleIntersection, root, rootMargin, threshold]);
 
-  // Si "once" est activé et que l'élément a déjà été intersecté, retourner true
   const shouldRender = once ? hasIntersected : isIntersecting;
 
   return {
@@ -122,14 +138,6 @@ DefaultFallback.displayName = 'DefaultFallback';
 
 /**
  * Composant LazySection principal
- * 
- * Fonctionnalités :
- * - Chargement paresseux basé sur l'Intersection Observer
- * - Fallback personnalisable pendant le chargement
- * - Options configurables pour l'intersection
- * - Support du chargement unique ou répété
- * - Optimisations de performance avec mémoisation
- * - Accessibilité intégrée
  */
 const LazySection = React.forwardRef<HTMLDivElement, ILazySectionProps>(
   ({
@@ -149,20 +157,22 @@ const LazySection = React.forwardRef<HTMLDivElement, ILazySectionProps>(
       shouldRender,
     } = useIntersectionObserver(intersectionOptions, once);
 
-    // Callback pour l'intersection
     useEffect(() => {
       if (onIntersect) {
         onIntersect(isIntersecting);
       }
     }, [isIntersecting, onIntersect]);
 
-    // Mémorisation du fallback
     const memoizedFallback = useMemo(() => {
       if (fallback) return fallback;
       return <DefaultFallback className={className} />;
     }, [fallback, className]);
 
-    // Si désactivé, rendre directement le contenu
+    // ====================================================================
+    // == CORRECTION 2 : Utilisation du hook pour fusionner les refs ==
+    // ====================================================================
+    const combinedRef = useCombinedRefs(elementRef, forwardedRef);
+
     if (disabled) {
       return (
         <div
@@ -178,15 +188,7 @@ const LazySection = React.forwardRef<HTMLDivElement, ILazySectionProps>(
 
     return (
       <div
-        ref={(node) => {
-          // Gestion des refs multiples
-          elementRef.current = node;
-          if (typeof forwardedRef === 'function') {
-            forwardedRef(node);
-          } else if (forwardedRef) {
-            forwardedRef.current = node;
-          }
-        }}
+        ref={combinedRef}
         className={className}
         data-testid={testId}
         {...props}
@@ -336,4 +338,3 @@ export class LazyLoadingUtils {
 }
 
 export default LazySection;
-
