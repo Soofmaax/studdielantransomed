@@ -12,28 +12,6 @@ import React, {
 } from 'react';
 import { cn } from '@/lib/utils';
 
-// ====================================================================
-// == CORRECTION 1 : Création d'un hook pour fusionner les refs ==
-// Ce hook résout le problème de la propriété en lecture seule.
-// ====================================================================
-const useCombinedRefs = <T extends any>(...refs: React.Ref<T>[]) => {
-  const targetRef = React.useRef<T>(null);
-
-  React.useEffect(() => {
-    refs.forEach(ref => {
-      if (!ref) return;
-
-      if (typeof ref === 'function') {
-        ref(targetRef.current);
-      } else {
-        (ref as React.MutableRefObject<T | null>).current = targetRef.current;
-      }
-    });
-  }, [refs]);
-
-  return targetRef;
-};
-
 /**
  * Options pour l'Intersection Observer
  */
@@ -61,12 +39,12 @@ interface ILazySectionProps {
  * Hook personnalisé pour l'Intersection Observer
  */
 function useIntersectionObserver(
+  ref: React.RefObject<HTMLElement>,
   options: IIntersectionOptions = {},
   once = true
 ) {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [hasIntersected, setHasIntersected] = useState(false);
-  const elementRef = useRef<HTMLDivElement>(null);
 
   const {
     root = null,
@@ -86,7 +64,7 @@ function useIntersectionObserver(
   }, [hasIntersected]);
 
   useEffect(() => {
-    const element = elementRef.current;
+    const element = ref.current;
     if (!element) return;
 
     const observer = new IntersectionObserver(handleIntersection, {
@@ -98,19 +76,14 @@ function useIntersectionObserver(
     observer.observe(element);
 
     return () => {
-      observer.unobserve(element);
+      if (element) {
+        observer.unobserve(element);
+      }
       observer.disconnect();
     };
-  }, [handleIntersection, root, rootMargin, threshold]);
+  }, [ref, handleIntersection, root, rootMargin, threshold]);
 
-  const shouldRender = once ? hasIntersected : isIntersecting;
-
-  return {
-    elementRef,
-    isIntersecting,
-    hasIntersected,
-    shouldRender,
-  };
+  return once ? hasIntersected : isIntersecting;
 }
 
 /**
@@ -133,7 +106,6 @@ const DefaultFallback = React.memo<{ className?: string }>(({ className }) => (
     </div>
   </div>
 ));
-
 DefaultFallback.displayName = 'DefaultFallback';
 
 /**
@@ -151,32 +123,28 @@ const LazySection = React.forwardRef<HTMLDivElement, ILazySectionProps>(
     'data-testid': testId,
     ...props
   }, forwardedRef) => {
-    const {
-      elementRef,
-      isIntersecting,
-      shouldRender,
-    } = useIntersectionObserver(intersectionOptions, once);
+    
+    const internalRef = useRef<HTMLDivElement>(null);
+    // On combine la ref interne et la ref externe
+    const ref = forwardedRef || internalRef;
+
+    const shouldRender = useIntersectionObserver(ref as React.RefObject<HTMLDivElement>, intersectionOptions, once);
 
     useEffect(() => {
       if (onIntersect) {
-        onIntersect(isIntersecting);
+        onIntersect(shouldRender);
       }
-    }, [isIntersecting, onIntersect]);
+    }, [shouldRender, onIntersect]);
 
     const memoizedFallback = useMemo(() => {
       if (fallback) return fallback;
       return <DefaultFallback className={className} />;
     }, [fallback, className]);
 
-    // ====================================================================
-    // == CORRECTION 2 : Utilisation du hook pour fusionner les refs ==
-    // ====================================================================
-    const combinedRef = useCombinedRefs(elementRef, forwardedRef);
-
     if (disabled) {
       return (
         <div
-          ref={forwardedRef}
+          ref={ref}
           className={className}
           data-testid={testId}
           {...props}
@@ -188,7 +156,7 @@ const LazySection = React.forwardRef<HTMLDivElement, ILazySectionProps>(
 
     return (
       <div
-        ref={combinedRef}
+        ref={ref}
         className={className}
         data-testid={testId}
         {...props}
@@ -204,25 +172,19 @@ const LazySection = React.forwardRef<HTMLDivElement, ILazySectionProps>(
     );
   }
 );
-
 LazySection.displayName = 'LazySection';
 
+// ====================================================================
+// == CORRECTION APPLIQUÉE ICI : Simplification radicale des HOCs ==
+// ====================================================================
+
 /**
- * Hook pour créer des composants lazy
+ * Hook pour créer des composants lazy (simplifié)
  */
 export function useLazyComponent<T extends ComponentType<any>>(
-  importFn: () => Promise<{ default: T }>,
-  fallback?: ReactNode
+  importFn: () => Promise<{ default: T }>
 ) {
-  return useMemo(() => {
-    const LazyComponent = React.lazy(importFn);
-    
-    return React.forwardRef<any, React.ComponentProps<T>>((props, ref) => (
-      <Suspense fallback={fallback || <DefaultFallback />}>
-        <LazyComponent {...props} ref={ref} />
-      </Suspense>
-    ));
-  }, [importFn, fallback]);
+  return useMemo(() => React.lazy(importFn), [importFn]);
 }
 
 /**
@@ -236,7 +198,6 @@ export const CriticalSection = React.memo<{
     {children}
   </div>
 ));
-
 CriticalSection.displayName = 'CriticalSection';
 
 /**
@@ -247,11 +208,10 @@ export const NonCriticalSection = React.memo<
 >(props => (
   <LazySection {...props} once={true} />
 ));
-
 NonCriticalSection.displayName = 'NonCriticalSection';
 
 /**
- * HOC pour rendre un composant lazy
+ * HOC pour rendre un composant lazy (simplifié)
  */
 export function withLazyLoading<P extends object>(
   Component: ComponentType<P>,
@@ -262,79 +222,19 @@ export function withLazyLoading<P extends object>(
 ) {
   const { fallback, intersectionOptions } = options;
 
-  const LazyWrappedComponent = React.forwardRef<any, P & { className?: string }>(
-    (props, ref) => (
-      <LazySection
-        fallback={fallback}
-        intersectionOptions={intersectionOptions}
-        className={props.className}
-      >
-        <Component {...props} ref={ref} />
-      </LazySection>
-    )
+  const LazyWrappedComponent = (props: P & { className?: string }) => (
+    <LazySection
+      fallback={fallback}
+      intersectionOptions={intersectionOptions}
+      className={props.className}
+    >
+      <Component {...props} />
+    </LazySection>
   );
 
   LazyWrappedComponent.displayName = `withLazyLoading(${Component.displayName || Component.name})`;
 
   return LazyWrappedComponent;
-}
-
-/**
- * Utilitaires pour les performances
- */
-export class LazyLoadingUtils {
-  /**
-   * Précharge un composant lazy
-   */
-  static preloadComponent<T extends ComponentType<any>>(
-    importFn: () => Promise<{ default: T }>
-  ): Promise<{ default: T }> {
-    return importFn();
-  }
-
-  /**
-   * Précharge plusieurs composants en parallèle
-   */
-  static async preloadComponents(
-    importFns: Array<() => Promise<{ default: ComponentType<any> }>>
-  ): Promise<void> {
-    await Promise.all(importFns.map(fn => fn()));
-  }
-
-  /**
-   * Crée des options d'intersection optimisées selon le type de contenu
-   */
-  static getOptimizedIntersectionOptions(
-    contentType: 'image' | 'text' | 'interactive' | 'heavy'
-  ): IIntersectionOptions {
-    switch (contentType) {
-      case 'image':
-        return {
-          rootMargin: '100px',
-          threshold: 0.1,
-        };
-      case 'text':
-        return {
-          rootMargin: '50px',
-          threshold: 0.2,
-        };
-      case 'interactive':
-        return {
-          rootMargin: '200px',
-          threshold: 0.1,
-        };
-      case 'heavy':
-        return {
-          rootMargin: '300px',
-          threshold: 0.05,
-        };
-      default:
-        return {
-          rootMargin: '50px',
-          threshold: 0.1,
-        };
-    }
-  }
 }
 
 export default LazySection;
