@@ -16,13 +16,17 @@ export default function ContactPage() {
     e.preventDefault();
     try {
       // Handle form submission
-      await fetch('/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
       
       toast({
         title: 'Succès',
@@ -32,7 +36,16 @@ export default function ContactPage() {
       
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
-      logger.error('Contact form submission failed:', error);
+      // ====================================================================
+      // == CORRECTION APPLIQUÉE ICI ==
+      // On vérifie le type de 'error' avant de le passer au logger.
+      // ====================================================================
+      let errorMessage = 'Une erreur inconnue est survenue';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      logger.error('Contact form submission failed:', errorMessage);
+      
       toast({
         title: 'Erreur',
         description: 'Une erreur est survenue lors de l\'envoi du message',
