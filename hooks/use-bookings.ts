@@ -1,12 +1,13 @@
+
 // dans hooks/use-bookings.ts
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
-import { BookingWithCourse } from '@/types'; // Importez le nouveau type
+import { IBookingWithRelations } from '@/types/api'; // On importe votre type existant
 
 export function useBookings() {
-  // On dit à TypeScript que 'bookings' sera un tableau de BookingWithCourse
-  const [bookings, setBookings] = useState<BookingWithCourse[]>([]);
+  // On dit à TypeScript que 'bookings' sera un tableau de IBookingWithRelations
+  const [bookings, setBookings] = useState<IBookingWithRelations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -15,7 +16,7 @@ export function useBookings() {
       try {
         const response = await api.get('/bookings');
         // On s'assure que les données reçues correspondent au type
-        setBookings(response.data as BookingWithCourse[]);
+        setBookings(response.data as IBookingWithRelations[]);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('An unknown error occurred'));
       } finally {
