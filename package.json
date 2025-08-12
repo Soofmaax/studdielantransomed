@@ -49,7 +49,7 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\""
   },
-  "dependencies": {
+    "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@nestjs/common": "^10.3.0",
     "@nestjs/config": "^3.1.1",
@@ -77,11 +77,13 @@
     "framer-motion": "^11.0.14",
     "lucide-react": "^0.358.0",
     "next": "^14.1.3",
-    "next-auth": "^4.24.7",
+    "next-auth": "^4.2.4.7",
     "next-themes": "^0.3.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pino": "^9.2.0",
+    "pino-pretty": "^11.2.1",
     "react": "^18.2.0",
     "react-big-calendar": "^1.10.1",
     "react-dom": "^18.2.0",
@@ -94,6 +96,7 @@
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
   },
+
   "devDependencies": {
     "@commitlint/cli": "^18.6.0",
     "@commitlint/config-conventional": "^18.6.0",
