@@ -1,16 +1,52 @@
 # Configuration Netlify pour Studio Élan - Next.js App Router
+# Optimisée pour le déploiement sans erreurs
+
 [build]
+  # Commande de build pour Next.js
   command = "npm run build"
+  
+  # Dossier de publication (Next.js génère dans .next)
   publish = ".next"
   
+  # Variables d'environnement pour le build
   [build.environment]
     NODE_VERSION = "18"
     NPM_VERSION = "9"
 
+# Configuration pour Next.js App Router
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Redirections pour SPA (Single Page Application)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Headers de sécurité et performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Cache pour les assets statiques
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache pour les images
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Configuration des fonctions (si nécessaire pour les API routes)
+[functions]
+  directory = ".netlify/functions"
+  node_bundler = "esbuild"
+
