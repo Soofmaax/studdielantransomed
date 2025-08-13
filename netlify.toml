@@ -1,6 +1,10 @@
 # dans netlify.toml
 
-# On laisse le plugin Next.js gérer entièrement le build.
-# Il est assez intelligent pour lancer "npm run build" et trouver le dossier ".next" tout seul.
+# On spécifie uniquement le dossier de publication.
+# Le plugin s'occupera de la commande de build.
+[build]
+  publish = ".next"
+
+# On garde le plugin essentiel pour Next.js
 [[plugins]]
   package = "@netlify/plugin-nextjs"
