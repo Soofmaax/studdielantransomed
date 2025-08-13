@@ -1,10 +1,16 @@
-# dans netlify.toml
+# Fichier de configuration final et robuste pour un monorepo Next.js sur Netlify
 
-# On spécifie uniquement le dossier de publication.
-# Le plugin s'occupera de la commande de build.
+# On définit explicitement la commande de build et le dossier de publication.
+# C'est la configuration la plus sûre pour les projets complexes.
 [build]
+  # Étape 1: Générer le client Prisma pour que les types soient à jour.
+  # Étape 2: Construire l'application Next.js.
+  command = "npm run build:frontend"
+  
+  # Le résultat du build de Next.js se trouvera dans ce dossier.
   publish = ".next"
 
-# On garde le plugin essentiel pour Next.js
+# On garde le plugin essentiel pour que Netlify gère correctement
+# les fonctions serverless, les redirections et l'optimisation d'images de Next.js.
 [[plugins]]
   package = "@netlify/plugin-nextjs"
