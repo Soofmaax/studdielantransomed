@@ -1,0 +1,15 @@
+# Ignore backend NestJS (linté dans un workflow séparé)
+src/
+
+# Generated and build artifacts
+.next/
+dist/
+coverage/
+playwright-report/
+playwright/.cache/
+
+# Prisma generated
+prisma/
+
+# Public assets
+public/
