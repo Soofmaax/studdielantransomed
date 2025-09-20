@@ -5,7 +5,7 @@
   # Commande de build pour Next.js
   command = "npm run build"
   
-  # Dossier de publication (Next.js génère dans .next)
+  # Dossier de publication (géré par le plugin Next.js)
   publish = ".next"
   
   # Variables d'environnement pour le build
@@ -13,15 +13,9 @@
     NODE_VERSION = "18"
     NPM_VERSION = "9"
 
-# Configuration pour Next.js App Router
+# Plugin officiel Next.js pour Netlify (gère le routing et l'ISR)
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-# Redirections pour SPA (Single Page Application)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 
 # Headers de sécurité et performance
 [[headers]]
