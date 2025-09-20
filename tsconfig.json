@@ -23,6 +23,22 @@
     },
     "types": ["jest", "@testing-library/jest-dom"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "jest.setup.js"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "app/**/*",
+    "components/**/*",
+    "lib/**/*",
+    "types/**/*",
+    "__tests__/**/*",
+    "e2e/**/*",
+    "middleware.ts",
+    "next.config.js",
+    "jest.config.js",
+    "jest.setup.js",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**"
+  ]
 }
