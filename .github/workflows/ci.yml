@@ -13,12 +13,14 @@ concurrency:
 
 jobs:
   quality:
-    name: Lint, Type Check and Format Check
+    name: Format, Lint and Type Check
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -29,14 +31,23 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Type check
-        run: npm run type-check
+      - name: Prettier format (write)
+        run: npm run format
+
+      - name: Auto-commit formatting changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: format with Prettier"
+          branch: ${{ github.head_ref || github.ref_name }}
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          skip_dirty_check: false
 
       - name: Lint
         run: npm run lint
 
-      - name: Prettier format check
-        run: npm run format:check
+      - name: Type check
+        run: npm run type-check
 
   tests:
     name: Unit tests (Jest)
