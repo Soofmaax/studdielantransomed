@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig, AxiosRequestHeaders } from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
@@ -8,15 +8,16 @@ const api = axios.create({
 });
 
 // Add auth token to requests if available (client-side only)
-api.interceptors.request.use((config: any) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (typeof window !== 'undefined') {
     const token = window.localStorage.getItem('token');
     if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
+      const headers: AxiosRequestHeaders = (config.headers ?? {}) as AxiosRequestHeaders;
+      headers['Authorization'] = `Bearer ${token}`;
+      config.headers = headers;
     }
   }
-  return config as any;
+  return config;
 });
 
 // Handle auth errors

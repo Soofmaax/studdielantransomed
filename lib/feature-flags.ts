@@ -52,7 +52,8 @@ export function isFeatureEnabled(
   
   // Check role constraints
   if (feature.allowedRoles && context?.userRole) {
-    if (!feature.allowedRoles.includes(context.userRole as any)) {
+    const role = context.userRole as FeatureFlag['allowedRoles'][number];
+    if (!feature.allowedRoles.includes(role)) {
       return false;
     }
   }

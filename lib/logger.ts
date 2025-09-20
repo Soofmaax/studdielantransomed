@@ -6,23 +6,16 @@ type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 const isDev = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development';
 
-function log(level: LogLevel, ...args: unknown[]) {
-  // In browsers, map levels to console methods
-  if (typeof window !== 'undefined') {
-    // eslint-disable-next-line no-console
-    (console as any)[level] ? (console as any)[level](...args) : console.log(...args);
-    return;
-  }
-  // In Node, also use console to avoid extra dependencies
-  // eslint-disable-next-line no-console
-  (console as any)[level] ? (console as any)[level](...args) : console.log(...args);
+function getConsoleMethod(level: LogLevel): (...args: unknown[]) => void {
+  const method = (console as unknown as Record<string, (...args: unknown[]) => void>)[level];
+  return typeof method === 'function' ? method : console.log;
 }
 
 export const logger = {
   debug: (...args: unknown[]) => {
-    if (isDev) log('debug', ...args);
+    if (isDev) getConsoleMethod('debug')(...args);
   },
-  info: (...args: unknown[]) => log('info', ...args),
-  warn: (...args: unknown[]) => log('warn', ...args),
-  error: (...args: unknown[]) => log('error', ...args),
+  info: (...args: unknown[]) => getConsoleMethod('info')(...args),
+  warn: (...args: unknown[]) => getConsoleMethod('warn')(...args),
+  error: (...args: unknown[]) => getConsoleMethod('error')(...args),
 };

@@ -49,27 +49,27 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        (token as any).role = (user as any).role;
-        (token as any).id = (user as any).id;
+        token.role = (user as any).role;
+        token.id = (user as any).id;
       }
       
-      const exp = Number((token as any).exp || 0);
+      const exp = Number(token.exp || 0);
       if (exp) {
         const shouldRefreshTime = exp - Math.floor(Date.now() / 1000) < 24 * 60 * 60;
         if (shouldRefreshTime) {
           return {
-            ...(token as any),
+            ...token,
             exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-          } as any;
+          };
         }
       }
 
       return token;
     },
     async session({ session, token }) {
-      if ((token as any) && session.user) {
-        (session.user as any).id = (token as any).id as string;
-        (session.user as any).role = (token as any).role as User['role'];
+      if (session.user) {
+        session.user.id = (token.id as string) || session.user.id;
+        session.user.role = (token.role as User['role']) || session.user.role;
       }
       return session;
     }

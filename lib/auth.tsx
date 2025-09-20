@@ -74,11 +74,11 @@ class SessionUtils {
     if (!session?.user) return null;
 
     return {
-      id: (session.user as any).id || '',
+      id: session.user.id || '',
       email: session.user.email || '',
       name: session.user.name || null,
-      role: (session.user as any).role || 'CLIENT',
-      image: (session.user as any).image || null,
+      role: session.user.role || 'CLIENT',
+      image: session.user.image || null,
     };
   }
 
@@ -147,7 +147,7 @@ export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
         redirect: false,
       };
 
-      const result = await signIn('credentials', options as any);
+      const result = await signIn('credentials', options);
 
       if (result?.error) {
         // Gestion des erreurs spécifiques

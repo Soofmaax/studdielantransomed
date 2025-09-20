@@ -125,7 +125,7 @@ class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
-        image: (token as any).picture || null,
+        image: token.picture || null,
       };
     } catch (error) {
       console.error('Erreur lors de l\'enrichissement de session:', error);
@@ -195,15 +195,15 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       // Lors de la première connexion
       if (user && account) {
-        (token as any).role = (user as any).role;
+        token.role = (user as any).role;
       }
 
       // Vérification périodique de l'état de l'utilisateur
-      if (token.sub && Date.now() - ((token as any).lastCheck || 0) > 60 * 60 * 1000) { // 1 heure
-        const currentUser = await AuthService.enrichUserSession(token as any);
+      if (token.sub && Date.now() - (token.lastCheck || 0) > 60 * 60 * 1000) { // 1 heure
+        const currentUser = await AuthService.enrichUserSession(token);
         if (currentUser) {
-          (token as any).role = currentUser.role;
-          (token as any).lastCheck = Date.now();
+          token.role = currentUser.role;
+          token.lastCheck = Date.now();
         }
       }
 
@@ -215,10 +215,10 @@ export const authOptions: NextAuthOptions = {
      */
     async session({ session, token }): Promise<Session> {
       if (token.sub) {
-        const userSession = await AuthService.enrichUserSession(token as any);
+        const userSession = await AuthService.enrichUserSession(token);
         
         if (userSession) {
-          (session.user as any) = {
+          session.user = {
             ...session.user,
             id: userSession.id,
             role: userSession.role,
