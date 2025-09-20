@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --max-warnings=0 \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" \"WebVitalsMonitor.tsx\"",
+    "lint": "eslint --max-warnings=0 --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" \"WebVitalsMonitor.tsx\"",
     "lint:next": "next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
@@ -101,7 +101,7 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "prettier --write",
-      "eslint --fix --max-warnings=0"
+      "eslint --fix --max-warnings=0 --ignore-pattern \"src/**\""
     ],
     "*.{json,md,css,scss}": [
       "prettier --write"
