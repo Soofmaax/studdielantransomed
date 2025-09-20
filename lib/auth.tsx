@@ -74,11 +74,11 @@ class SessionUtils {
     if (!session?.user) return null;
 
     return {
-      id: session.user.id || '',
+      id: (session.user as any).id || '',
       email: session.user.email || '',
       name: session.user.name || null,
-      role: session.user.role || 'CLIENT',
-      image: session.user.image || null,
+      role: (session.user as any).role || 'CLIENT',
+      image: (session.user as any).image || null,
     };
   }
 

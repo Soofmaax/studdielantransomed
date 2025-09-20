@@ -268,9 +268,10 @@ export function WebVitalsMonitor() {
         {Object.entries(metrics).map(([key, value]) => {
           if (key === 'timestamp' || key === 'url' || key === 'userAgent' || value === null) return null;
           
+          const numericValue = Number(value);
           const score = PerformanceMonitoringService.getPerformanceScore(
             key as keyof IPerformanceThresholds,
-            value
+            numericValue
           );
           
           return (
@@ -278,7 +279,7 @@ export function WebVitalsMonitor() {
               <span className="text-gray-600 uppercase">{key}:</span>
               <div className="flex items-center space-x-2">
                 <span className="text-gray-900">
-                  {key === 'cls' ? value.toFixed(3) : Math.round(value)}
+                  {key === 'cls' ? numericValue.toFixed(3) : Math.round(numericValue)}
                   {key !== 'cls' && 'ms'}
                 </span>
                 <div className={`w-2 h-2 rounded-full ${
