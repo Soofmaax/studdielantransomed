@@ -34,14 +34,8 @@ jobs:
       - name: Prettier format (write)
         run: npm run format
 
-      - name: Auto-commit formatting changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: format with Prettier"
-          branch: ${{ github.head_ref || github.ref_name }}
-          commit_user_name: github-actions[bot]
-          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
-          skip_dirty_check: false
+      # We don't auto-commit in CI to avoid file pattern issues with dependencies.
+      # Husky + lint-staged ensures formatting locally before commits.
 
       - name: Lint
         run: npm run lint
