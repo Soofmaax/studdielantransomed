@@ -51,9 +51,11 @@ export function isFeatureEnabled(
   if (feature.endDate && now > feature.endDate) return false;
   
   // Check role constraints
-  if (feature.allowedRoles && context?.userRole) {
-    const role = context.userRole as FeatureFlag['allowedRoles'][number];
-    if (!feature.allowedRoles.includes(role)) {
+  if (Array.isArray(feature.allowedRoles) && context?.userRole) {
+    type RoleUnion = NonNullable<FeatureFlag['allowedRoles']>[number];
+    const role = context.userRole as RoleUnion;
+    const allowedRoles = feature.allowedRoles as NonNullable<typeof feature.allowedRoles>;
+    if (!allowedRoles.includes(role)) {
       return false;
     }
   }

@@ -57,23 +57,24 @@ type MetricKey = 'cls' | 'fid' | 'fcp' | 'lcp' | 'ttfb';
  * Service de monitoring des performances
  */
 class PerformanceMonitoringService {
-  private static metrics: Partial<IPerformanceMetrics> = {};
-  private static listeners: Array<(metrics: Partial<IPerformanceMetrics>) => void> = [];
+  // Ne stocke que les métriques numériques clés (pas les métadonnées)
+  private static metrics: Partial<Pick<IPerformanceMetrics, MetricKey>> = {};
+  private static listeners: Array<(metrics: Partial<Pick<IPerformanceMetrics, MetricKey>>) => void> = [];
 
-  /**
-   * Ajoute un listener pour les mises à jour de métriques
-   */
-  static addListener(callback: (metrics: Partial<IPerformanceMetrics>) => void) {
+/**
+ * Ajoute un listener pour les mises à jour de métriques
+ */
+  static addListener(callback: (metrics: Partial<Pick<IPerformanceMetrics, MetricKey>>) => void) {
     this.listeners.push(callback);
     return () => {
       this.listeners = this.listeners.filter(listener => listener !== callback);
     };
   }
 
-  /**
-   * Met à jour une métrique et notifie les listeners
-   */
-  static updateMetric(name: keyof IPerformanceMetrics, value: number) {
+/**
+ * Met à jour une métrique et notifie les listeners
+ */
+  static updateMetric(name: MetricKey, value: number) {
     this.metrics[name] = value;
     this.notifyListeners();
   }
@@ -104,12 +105,9 @@ class PerformanceMonitoringService {
     let totalScore = 0;
     let metricCount = 0;
 
-    (Object.entries(metrics) as Array<[keyof IPerformanceMetrics, unknown]>)
-      .filter(([key, value]) =>
-        (key === 'cls' || key === 'fid' || key === 'fcp' || key === 'lcp' || key === 'ttfb') &&
-        typeof value === 'number'
-      )
+    (Object.entries(metrics) as Array<[MetricKey, number]>)
       .forEach(([key, value]) => {
+        if (typeof value !== 'number') return;
         const numericValue = Number(value);
         const score = this.getPerformanceScore(key as keyof IPerformanceThresholds, numericValue);
         totalScore += score === 'good' ? 100 : score === 'needs-improvement' ? 50 : 0;
