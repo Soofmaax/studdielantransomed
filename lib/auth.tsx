@@ -147,7 +147,7 @@ export function AuthProvider({ children }: IAuthProviderProps): JSX.Element {
         redirect: false,
       };
 
-      const result = await signIn('credentials', options);
+      const result = await signIn('credentials', options as any);
 
       if (result?.error) {
         // Gestion des erreurs spécifiques

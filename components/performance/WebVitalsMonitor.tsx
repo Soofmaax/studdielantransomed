@@ -102,13 +102,17 @@ class PerformanceMonitoringService {
     let totalScore = 0;
     let metricCount = 0;
 
-    Object.entries(metrics).forEach(([key, value]) => {
-      if (value !== null && key !== 'timestamp' && key !== 'url' && key !== 'userAgent') {
-        const score = this.getPerformanceScore(key as keyof IPerformanceThresholds, value);
+    (Object.entries(metrics) as Array<[keyof IPerformanceMetrics, any]>)
+      .filter(([key, value]) =>
+        (key === 'cls' || key === 'fid' || key === 'fcp' || key === 'lcp' || key === 'ttfb') &&
+        typeof value === 'number'
+      )
+      .forEach(([key, value]) => {
+        const numericValue = Number(value);
+        const score = this.getPerformanceScore(key as keyof IPerformanceThresholds, numericValue);
         totalScore += score === 'good' ? 100 : score === 'needs-improvement' ? 50 : 0;
         metricCount++;
-      }
-    });
+      });
 
     return metricCount > 0 ? Math.round(totalScore / metricCount) : 0;
   }
