@@ -98,6 +98,14 @@ jobs:
           path: coverage
           if-no-files-found: ignore
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # Not needed for public repos
+          files: ./coverage/clover.xml,./coverage/cobertura-coverage.xml,./coverage/coverage-final.json
+          fail_ci_if_error: false
+          verbose: true
+
   build:
     name: Build
     runs-on: ubuntu-latest

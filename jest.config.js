@@ -13,10 +13,31 @@ const customJestConfig = {
   testMatch: ['**/__tests__/**/*.(test|spec).(ts|tsx|js|jsx)'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
+    '^@/(.*): '<rootDir>/$1',
   },
   // Ignore e2e tests from unit test run
   testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
+  collectCoverageFrom: [
+    '<rootDir>/{app,components,lib,hooks}/**/*.{ts,tsx}',
+    '!<rootDir>/**/_*.{ts,tsx}', // ignore private modules if any
+    '!<rootDir>/**/?(*.)+(stories|spec|test).{ts,tsx}',
+    '!<rootDir>/**/index.{ts,tsx}',
+    '!<rootDir>/lib/**/types.{ts,tsx}',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 60,
+      functions: 70,
+      lines: 75,
+      statements: 75,
+    },
+    './lib/**/{!(index),}.ts': {
+      lines: 80,
+    },
+    './components/**/{!(index),}.tsx': {
+      lines: 70,
+    },
+  },
 };
 
 module.exports = createJestConfig(customJestConfig);
