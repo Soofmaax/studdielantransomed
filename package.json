@@ -7,10 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --max-warnings=0 --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" \"WebVitalsMonitor.tsx\"",
+    "lint": "eslint --max-warnings=0 --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" \"WebVitalsMonitor.tsx\" --no-error-on-unmatched-pattern",
     "lint:next": "next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
+    "format:front": "prettier --write \"{app,components,hooks,lib,__tests__,types}/**/*.{ts,tsx,js,jsx,css,md}\" WebVitalsMonitor.tsx",
     "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -101,7 +102,7 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "prettier --write",
-      "eslint --fix --max-warnings=0 --ignore-pattern \"src/**\""
+      "eslint --fix --max-warnings=0 --ignore-pattern \"src/**\" --no-error-on-unmatched-pattern"
     ],
     "*.{json,md,css,scss}": [
       "prettier --write"

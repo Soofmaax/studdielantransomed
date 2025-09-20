@@ -31,8 +31,8 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Prettier format (write)
-        run: npm run format
+      - name: Prettier format (frontend only)
+        run: npm run format:front
 
       # We don't auto-commit in CI to avoid file pattern issues with dependencies.
       # Husky + lint-staged ensures formatting locally before commits.
