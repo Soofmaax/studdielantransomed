@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Lint and Type Check
+    name: Lint, Type Check and Format Check
     runs-on: ubuntu-latest
 
     steps:
@@ -35,6 +35,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Prettier format check
+        run: npm run format:check
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -42,6 +45,16 @@ jobs:
 
     env:
       NEXT_TELEMETRY_DISABLED: 1
+      CI: true
+      # Public envs (inlined at build time)
+      NEXT_PUBLIC_BASE_URL: https://example.com
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_dummy
+      NEXT_PUBLIC_GA_ID: GA-TEST
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api
+      # Server envs (not used at build but defined for completeness)
+      NEXTAUTH_SECRET: test_secret
+      STRIPE_SECRET_KEY: sk_test_dummy
+      STRIPE_WEBHOOK_SECRET: whsec_test_dummy
 
     steps:
       - name: Checkout
