@@ -59,7 +59,7 @@ export function isFeatureEnabled(
   }
   
   // Check rollout percentage
-  if (feature.rolloutPercentage && context?.userId) {
+  if (typeof feature.rolloutPercentage === 'number' && context?.userId) {
     const hash = hashString(context.userId);
     return (hash % 100) < feature.rolloutPercentage;
   }

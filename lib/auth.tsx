@@ -14,12 +14,13 @@ import { IAuthContext, IUserSession } from '@/types/api';
 /**
  * Interface pour les options de connexion
  */
-interface ISignInOptions {
+type ISignInOptions = {
   email: string;
   password: string;
   redirect?: boolean;
   callbackUrl?: string;
-}
+  [key: string]: unknown;
+};
 
 /**
  * Interface pour les options de déconnexion
