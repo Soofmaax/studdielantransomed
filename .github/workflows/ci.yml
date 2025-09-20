@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Format, Lint and Type Check
+    name: Format, Lint and Type Check (Frontend)
     runs-on: ubuntu-latest
 
     steps:
@@ -99,6 +99,30 @@ jobs:
           files: ./coverage/clover.xml,./coverage/cobertura-coverage.xml,./coverage/coverage-final.json
           fail_ci_if_error: false
           verbose: true
+
+  backend-quality:
+    name: Lint and Type Check (Backend)
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Lint backend (NestJS)
+        run: npx eslint -c .eslintrc.backend.json "src/**/*.ts"
+
+      - name: Type check backend
+        run: npx tsc -p tsconfig.backend.json --noEmit
 
   build:
     name: Build
