@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
@@ -7,21 +7,23 @@ const api = axios.create({
   },
 });
 
-// Add auth token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Add auth token to requests if available (client-side only)
+api.interceptors.request.use((config: AxiosRequestConfig) => {
+  if (typeof window !== 'undefined') {
+    const token = window.localStorage.getItem('token');
+    if (token) {
+      (config.headers as any).Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
 
 // Handle auth errors
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
+    if (typeof window !== 'undefined' && error.response?.status === 401) {
+      window.localStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);

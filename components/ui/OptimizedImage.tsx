@@ -214,6 +214,9 @@ ImageFallback.displayName = 'ImageFallback';
 const OptimizedImage = React.forwardRef<HTMLImageElement, IOptimizedImageProps>(
   (props, ref) => {
     const {
+      // Remove src/alt from rest props to avoid duplicate JSX attributes
+      src: _src,
+      alt: _alt,
       className,
       objectFit = 'cover',
       objectPosition = 'center',

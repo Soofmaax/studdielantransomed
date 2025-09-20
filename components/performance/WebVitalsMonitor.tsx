@@ -8,6 +8,13 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { getCLS, getFID, getFCP, getLCP, getTTFB, Metric } from 'web-vitals';
 
+// Declare GA on window to satisfy TS when present
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 /**
  * Interface pour les métriques de performance
  */
@@ -200,12 +207,12 @@ export function useWebVitals() {
 
   const handleMetric = useCallback((metric: Metric) => {
     // Mettre à jour les métriques locales
-    metricsRef.current[metric.name.toLowerCase() as keyof IPerformanceMetrics] = metric.value;
+    (metricsRef.current as any)[metric.name.toLowerCase() as keyof IPerformanceMetrics] = metric.value as number;
     
     // Mettre à jour le service global
     PerformanceMonitoringService.updateMetric(
       metric.name.toLowerCase() as keyof IPerformanceMetrics,
-      metric.value
+      metric.value as number
     );
 
     // Envoyer à l'analytics
@@ -221,9 +228,9 @@ export function useWebVitals() {
     getTTFB(handleMetric);
 
     // Ajouter des métadonnées
-    metricsRef.current.timestamp = Date.now();
-    metricsRef.current.url = window.location.href;
-    metricsRef.current.userAgent = navigator.userAgent;
+    (metricsRef.current as any).timestamp = Date.now();
+    (metricsRef.current as any).url = window.location.href;
+    (metricsRef.current as any).userAgent = navigator.userAgent;
   }, [handleMetric]);
 
   return {
