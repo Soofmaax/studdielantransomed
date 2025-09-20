@@ -95,7 +95,6 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # Not needed for public repos
           files: ./coverage/clover.xml,./coverage/cobertura-coverage.xml,./coverage/coverage-final.json
           fail_ci_if_error: false
           verbose: true
@@ -158,7 +157,6 @@ jobs:
       - name: Upload backend coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage-backend/clover.xml,./coverage-backend/cobertura-coverage.xml,./coverage-backend/coverage-final.json
           fail_ci_if_error: false
           verbose: true
