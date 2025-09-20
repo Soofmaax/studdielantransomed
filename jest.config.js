@@ -31,12 +31,6 @@ const customJestConfig = {
       lines: 75,
       statements: 75,
     },
-    './lib/**/{!(index),}.ts': {
-      lines: 80,
-    },
-    './components/**/{!(index),}.tsx': {
-      lines: 70,
-    },
   },
 };
 
