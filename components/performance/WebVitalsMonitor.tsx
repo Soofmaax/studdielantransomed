@@ -11,7 +11,7 @@ import { getCLS, getFID, getFCP, getLCP, getTTFB, Metric } from 'web-vitals';
 // Declare GA on window to satisfy TS when present
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -50,6 +50,8 @@ const PERFORMANCE_THRESHOLDS: IPerformanceThresholds = {
   lcp: { good: 2500, needsImprovement: 4000 },
   ttfb: { good: 800, needsImprovement: 1800 },
 };
+
+type MetricKey = 'cls' | 'fid' | 'fcp' | 'lcp' | 'ttfb';
 
 /**
  * Service de monitoring des performances
@@ -102,7 +104,7 @@ class PerformanceMonitoringService {
     let totalScore = 0;
     let metricCount = 0;
 
-    (Object.entries(metrics) as Array<[keyof IPerformanceMetrics, any]>)
+    (Object.entries(metrics) as Array<[keyof IPerformanceMetrics, unknown]>)
       .filter(([key, value]) =>
         (key === 'cls' || key === 'fid' || key === 'fcp' || key === 'lcp' || key === 'ttfb') &&
         typeof value === 'number'
@@ -125,7 +127,7 @@ class PerformanceMonitoringService {
     if (process.env.NODE_ENV === 'development') {
       console.info(`Web Vital ${metric.name}:`, {
         value: metric.value,
-        rating: this.getPerformanceScore(metric.name as keyof IPerformanceThresholds, metric.value),
+        rating: this.getPerformanceScore(metric.name as keyof IPerformanceThresholds, Number(metric.value)),
         delta: metric.delta,
         id: metric.id,
       });
@@ -135,32 +137,14 @@ class PerformanceMonitoringService {
     if (process.env.NODE_ENV === 'production' && typeof window !== 'undefined') {
       try {
         // Google Analytics 4
-        if (window.gtag) {
+        if (typeof window.gtag === 'function') {
           window.gtag('event', metric.name, {
             event_category: 'Web Vitals',
-            value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+            value: Math.round(metric.name === 'CLS' ? Number(metric.value) * 1000 : Number(metric.value)),
             event_label: metric.id,
             non_interaction: true,
           });
         }
-
-        // Ou envoyer à votre propre API d'analytics
-        await fetch('/api/analytics/web-vitals', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: metric.name,
-            value: metric.value,
-            rating: this.getPerformanceScore(metric.name as keyof IPerformanceThresholds, metric.value),
-            delta: metric.delta,
-            id: metric.id,
-            url: window.location.href,
-            timestamp: Date.now(),
-            userAgent: navigator.userAgent,
-          }),
-        });
       } catch (error) {
         console.error('Erreur lors de l\'envoi des métriques:', error);
       }
@@ -175,27 +159,27 @@ class PerformanceMonitoringService {
     const metrics = this.metrics;
 
     // Analyse LCP (Largest Contentful Paint)
-    if (metrics.lcp && metrics.lcp > PERFORMANCE_THRESHOLDS.lcp.needsImprovement) {
+    if (typeof metrics.lcp === 'number' && metrics.lcp > PERFORMANCE_THRESHOLDS.lcp.needsImprovement) {
       suggestions.push('LCP élevé: Optimisez les images et réduisez le temps de réponse du serveur');
     }
 
     // Analyse FID (First Input Delay)
-    if (metrics.fid && metrics.fid > PERFORMANCE_THRESHOLDS.fid.needsImprovement) {
+    if (typeof metrics.fid === 'number' && metrics.fid > PERFORMANCE_THRESHOLDS.fid.needsImprovement) {
       suggestions.push('FID élevé: Réduisez le JavaScript bloquant et optimisez les tâches longues');
     }
 
     // Analyse CLS (Cumulative Layout Shift)
-    if (metrics.cls && metrics.cls > PERFORMANCE_THRESHOLDS.cls.needsImprovement) {
+    if (typeof metrics.cls === 'number' && metrics.cls > PERFORMANCE_THRESHOLDS.cls.needsImprovement) {
       suggestions.push('CLS élevé: Définissez les dimensions des images et évitez les insertions de contenu dynamique');
     }
 
     // Analyse FCP (First Contentful Paint)
-    if (metrics.fcp && metrics.fcp > PERFORMANCE_THRESHOLDS.fcp.needsImprovement) {
+    if (typeof metrics.fcp === 'number' && metrics.fcp > PERFORMANCE_THRESHOLDS.fcp.needsImprovement) {
       suggestions.push('FCP élevé: Optimisez les ressources critiques et utilisez le preloading');
     }
 
     // Analyse TTFB (Time to First Byte)
-    if (metrics.ttfb && metrics.ttfb > PERFORMANCE_THRESHOLDS.ttfb.needsImprovement) {
+    if (typeof metrics.ttfb === 'number' && metrics.ttfb > PERFORMANCE_THRESHOLDS.ttfb.needsImprovement) {
       suggestions.push('TTFB élevé: Optimisez la performance du serveur et utilisez un CDN');
     }
 
@@ -207,17 +191,27 @@ class PerformanceMonitoringService {
  * Hook pour surveiller les Web Vitals
  */
 export function useWebVitals() {
-  const metricsRef = useRef<Partial<IPerformanceMetrics>>({});
+  const initialMetrics: IPerformanceMetrics = {
+    cls: null,
+    fid: null,
+    fcp: null,
+    lcp: null,
+    ttfb: null,
+    timestamp: 0,
+    url: '',
+    userAgent: '',
+  };
+
+  const metricsRef = useRef<IPerformanceMetrics>(initialMetrics);
 
   const handleMetric = useCallback((metric: Metric) => {
+    const key = metric.name.toLowerCase() as MetricKey;
+
     // Mettre à jour les métriques locales
-    (metricsRef.current as any)[metric.name.toLowerCase() as keyof IPerformanceMetrics] = metric.value as number;
-    
+    metricsRef.current[key] = Number(metric.value);
+
     // Mettre à jour le service global
-    PerformanceMonitoringService.updateMetric(
-      metric.name.toLowerCase() as keyof IPerformanceMetrics,
-      metric.value as number
-    );
+    PerformanceMonitoringService.updateMetric(key, Number(metric.value));
 
     // Envoyer à l'analytics
     PerformanceMonitoringService.sendToAnalytics(metric);
@@ -232,9 +226,9 @@ export function useWebVitals() {
     getTTFB(handleMetric);
 
     // Ajouter des métadonnées
-    (metricsRef.current as any).timestamp = Date.now();
-    (metricsRef.current as any).url = window.location.href;
-    (metricsRef.current as any).userAgent = navigator.userAgent;
+    metricsRef.current.timestamp = Date.now();
+    metricsRef.current.url = window.location.href;
+    metricsRef.current.userAgent = navigator.userAgent;
   }, [handleMetric]);
 
   return {
