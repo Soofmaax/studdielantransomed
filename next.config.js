@@ -94,7 +94,8 @@ const nextConfig = {
   // Configuration d'ESLint
   eslint: {
     ignoreDuringBuilds: false,
-    dirs: ['app', 'components', 'lib'],
+    // Restreindre explicitement le périmètre du lint au frontend
+    dirs: ['app', 'components', 'hooks', 'lib', '__tests__', 'types'],
   },
 
   // Désactiver le header X-Powered-By
