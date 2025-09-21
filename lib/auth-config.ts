@@ -3,12 +3,12 @@
  * Sécurité renforcée et expérience utilisateur optimisée
  */
 
-import { NextAuthOptions, User, Session } from 'next-auth';
-import { JWT } from 'next-auth/jwt';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import { compare } from 'bcrypt';
+import { NextAuthOptions, Session, User } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
+import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 
 import { IUserSession } from '@/types/api';
@@ -68,7 +68,7 @@ class AuthService {
       }
 
       // Vérification du mot de passe
-      const isPasswordValid = await bcrypt.compare(validatedCredentials.password, user.password);
+      const isPasswordValid = await compare(validatedCredentials.password, user.password);
       if (!isPasswordValid) {
         console.warn(`Tentative de connexion avec mot de passe incorrect: ${user.email}`);
         return null;
@@ -143,7 +143,7 @@ export const authOptions: NextAuthOptions = {
 
   // Providers d'authentification
   providers: [
-    CredentialsProvider({
+    Credentials({
       id: 'credentials',
       name: 'Email et mot de passe',
       credentials: {

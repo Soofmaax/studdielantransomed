@@ -3,7 +3,8 @@
  * Typage strict pour une expérience développeur exceptionnelle
  */
 
-import { ReactNode, ComponentPropsWithoutRef, ElementType } from 'react';
+import { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react';
+
 import { IPublicCourse, IPublicUser, IBookingWithRelations } from './api';
 
 // =============================================================================
