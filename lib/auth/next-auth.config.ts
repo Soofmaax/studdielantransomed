@@ -1,14 +1,9 @@
 import { AuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient, User } from '@prisma/client'; // On importe PrismaClient et User ici
+import { PrismaClient, User } from '@prisma/client';
 import { compare } from 'bcrypt';
 
-// ====================================================================
-// == CORRECTION APPLIQUÉE ICI ==
-// On initialise PrismaClient directement dans ce fichier
-// au lieu de l'importer depuis un chemin qui n'existe pas.
-// ====================================================================
 const prisma = new PrismaClient();
 
 export const authOptions: AuthOptions = {
@@ -32,19 +27,14 @@ export const authOptions: AuthOptions = {
           where: { email: credentials.email }
         });
 
-        if (!user) {
-          throw new Error('User not found');
-        }
-
-        // On s'assure que user.password n'est pas null avant de comparer
-        if (!user.password) {
-          throw new Error('User password is not set');
+        if (!user || !user.password) {
+          throw new Error('Invalid credentials');
         }
 
         const isValid = await compare(credentials.password, user.password);
 
         if (!isValid) {
-          throw new Error('Invalid password');
+          throw new Error('Invalid credentials');
         }
 
         return {
@@ -59,14 +49,13 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.id = user.id;
+        token.role = (user as any).role;
+        token.id = (user as any).id;
       }
       
-      // La logique de rafraîchissement du token peut être complexe,
-      // je la laisse telle quelle mais assurez-vous que token.exp existe.
-      if (token.exp) {
-        const shouldRefreshTime = Math.floor((token.exp - Date.now() / 1000)) < 24 * 60 * 60;
+      const exp = Number(token.exp || 0);
+      if (exp) {
+        const shouldRefreshTime = exp - Math.floor(Date.now() / 1000) < 24 * 60 * 60;
         if (shouldRefreshTime) {
           return {
             ...token,
@@ -78,9 +67,9 @@ export const authOptions: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as User['role'];
+      if (session.user) {
+        session.user.id = (token.id as string) || session.user.id;
+        session.user.role = (token.role as User['role']) || session.user.role;
       }
       return session;
     }

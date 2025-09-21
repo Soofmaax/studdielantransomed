@@ -305,7 +305,7 @@ export interface IAuthContext {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (options?: { redirect?: boolean; callbackUrl?: string }) => Promise<void>;
   refreshSession: () => Promise<void>;
 }
 

@@ -4,12 +4,13 @@ import Stripe from 'stripe';
 import { PrismaClient } from '@prisma/client';
 
 import { ApiErrorHandler } from '@/lib/api/error-handler';
+import { notifyBookingCreated } from '@/lib/notifications';
 
-// Initialisation sécurisée de Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-  typescript: true,
-});
+// Stripe initialisation optionnelle (permet un mode démo sans clés)
+const stripeKey = process.env.STRIPE_SECRET_KEY || '';
+const stripe = stripeKey
+  ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
+  : null;
 
 const prisma = new PrismaClient();
 
@@ -28,65 +29,39 @@ interface IValidatedSessionMetadata {
  * Traite les événements de paiement avec une approche artisanale
  */
 class StripeWebhookService {
-  /**
-   * Valide et extrait les métadonnées de la session Stripe
-   * @param metadata - Métadonnées brutes de Stripe
-   * @returns Métadonnées validées
-   */
-  private static validateSessionMetadata(
-    metadata: Stripe.Metadata | null
-  ): IValidatedSessionMetadata {
+  private static validateSessionMetadata(metadata: Stripe.Metadata | null): IValidatedSessionMetadata {
     if (!metadata) {
       throw new Error('Métadonnées de session manquantes');
     }
 
     const { courseId, date, userId, bookingType } = metadata;
 
-    if (!courseId || typeof courseId !== 'string') {
-      throw new Error('ID de cours invalide dans les métadonnées');
-    }
-    if (!date || typeof date !== 'string') {
-      throw new Error('Date invalide dans les métadonnées');
-    }
-    if (!userId || typeof userId !== 'string') {
-      throw new Error('ID utilisateur invalide dans les métadonnées');
-    }
-    if (bookingType !== 'course_booking') {
-      throw new Error('Type de réservation invalide');
-    }
+    if (!courseId || typeof courseId !== 'string') throw new Error('ID de cours invalide dans les métadonnées');
+    if (!date || typeof date !== 'string') throw new Error('Date invalide dans les métadonnées');
+    if (!userId || typeof userId !== 'string') throw new Error('ID utilisateur invalide dans les métadonnées');
+    if (bookingType !== 'course_booking') throw new Error('Type de réservation invalide');
+
     const parsedDate = new Date(date);
-    if (isNaN(parsedDate.getTime())) {
-      throw new Error('Format de date invalide');
-    }
+    if (isNaN(parsedDate.getTime())) throw new Error('Format de date invalide');
 
     return { courseId, date, userId, bookingType };
   }
 
-  /**
-   * Crée une réservation confirmée dans la base de données
-   * @param metadata - Métadonnées validées de la session
-   * @param session - Session Stripe complète
-   * @returns Réservation créée
-   */
   private static async createConfirmedBooking(
     metadata: IValidatedSessionMetadata,
-    session: Stripe.Checkout.Session
+    session: { id: string; payment_intent?: string | null; amount_total?: number | null; currency?: string | null }
   ) {
     const course = await prisma.course.findUnique({
       where: { id: metadata.courseId },
       select: { id: true, title: true, capacity: true },
     });
-    if (!course) {
-      throw new Error(`Cours ${metadata.courseId} introuvable`);
-    }
+    if (!course) throw new Error(`Cours ${metadata.courseId} introuvable`);
 
     const user = await prisma.user.findUnique({
       where: { id: metadata.userId },
       select: { id: true, email: true, name: true },
     });
-    if (!user) {
-      throw new Error(`Utilisateur ${metadata.userId} introuvable`);
-    }
+    if (!user) throw new Error(`Utilisateur ${metadata.userId} introuvable`);
 
     const existingBooking = await prisma.booking.findFirst({
       where: {
@@ -113,17 +88,13 @@ class StripeWebhookService {
         throw new Error('Cours complet - capacité dépassée');
       }
 
-      // Création de la réservation
       return await tx.booking.create({
         data: {
           courseId: metadata.courseId,
           userId: metadata.userId,
           date: new Date(metadata.date),
           status: 'CONFIRMED',
-          // ====================================================================
-          // == CORRECTION APPLIQUÉE ICI : Utilisation des bons noms de champs ==
-          // ====================================================================
-          stripePaymentIntentId: session.payment_intent as string,
+          stripePaymentIntentId: (session.payment_intent as string) || `demo_${session.id}`,
           paymentStatus: 'PAID',
           amount: session.amount_total ? session.amount_total / 100 : 0,
           currency: session.currency || 'eur',
@@ -142,56 +113,63 @@ class StripeWebhookService {
       date: booking.date,
     });
 
+    // Notifications (Telegram + Email avec fallback)
+    await notifyBookingCreated({
+      courseTitle: booking.course.title,
+      date: booking.date.toISOString(),
+      clientName: booking.user.name || 'Client',
+      clientEmail: booking.user.email,
+    });
+
     return booking;
   }
 
-  /**
-   * Traite l'événement de session de paiement complétée
-   * @param session - Session Stripe complétée
-   */
   static async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session): Promise<void> {
-    try {
-      const metadata = this.validateSessionMetadata(session.metadata);
-      await this.createConfirmedBooking(metadata, session);
-      console.info(`Webhook traité avec succès pour la session ${session.id}`);
-    } catch (error) {
-      console.error(`Erreur lors du traitement du webhook pour la session ${session.id}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Traite l'événement d'échec de paiement
-   * @param session - Session Stripe échouée
-   */
-  static async handlePaymentFailed(session: Stripe.Checkout.Session): Promise<void> {
-    console.warn(`Paiement échoué pour la session ${session.id}`, {
-      metadata: session.metadata,
-      customerEmail: session.customer_email,
-    });
+    const metadata = this.validateSessionMetadata(session.metadata);
+    await this.createConfirmedBooking(metadata, session);
+    console.info(`Webhook traité avec succès pour la session ${session.id}`);
   }
 }
 
 /**
  * Handler POST pour les webhooks Stripe
- * Vérifie la signature et traite les événements de manière sécurisée
+ * - Si Stripe est configuré: vérifie la signature et traite l'événement
+ * - Sinon: accepte des payloads de démo (JSON) pour simuler la confirmation
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.text();
-    const signature = headers().get('stripe-signature');
-    if (!signature) {
-      throw ApiErrorHandler.unauthorized('Signature Stripe manquante');
+    const stripeSignature = headers().get('stripe-signature');
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+
+    if (!stripe || !webhookSecret) {
+      // Mode démo: on s'attend à un JSON avec { metadata: {courseId,date,userId,bookingType}, sessionId }
+      const body = await request.json().catch(() => ({}));
+      const metadata = body?.metadata as Stripe.Metadata | null;
+
+      // Façon simple de simuler la confirmation
+      if (metadata) {
+        await StripeWebhookService['createConfirmedBooking'].call(StripeWebhookService, StripeWebhookService['validateSessionMetadata'](metadata), {
+          id: body.sessionId || `demo_${Date.now()}`,
+          payment_intent: null,
+          amount_total: null,
+          currency: 'eur',
+        });
+        return NextResponse.json({ received: true, eventType: 'demo.checkout.session.completed' }, { status: 200 });
+      }
+
+      // Sinon on ack sans action
+      return NextResponse.json({ received: true, eventType: 'demo' }, { status: 200 });
     }
 
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    if (!webhookSecret) {
-      throw new Error('STRIPE_WEBHOOK_SECRET non configuré');
+    // Mode réel Stripe
+    const rawBody = await request.text();
+    if (!stripeSignature) {
+      throw ApiErrorHandler.unauthorized('Signature Stripe manquante');
     }
 
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      event = stripe.webhooks.constructEvent(rawBody, stripeSignature, webhookSecret);
     } catch (error) {
       console.error('Erreur de vérification de signature Stripe:', error);
       throw ApiErrorHandler.unauthorized('Signature Stripe invalide');
@@ -236,7 +214,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 /**
- * Configuration de la route pour optimiser les performances
+ * Configuration de la route
  */
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

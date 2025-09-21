@@ -51,14 +51,17 @@ export function isFeatureEnabled(
   if (feature.endDate && now > feature.endDate) return false;
   
   // Check role constraints
-  if (feature.allowedRoles && context?.userRole) {
-    if (!feature.allowedRoles.includes(context.userRole as any)) {
+  if (Array.isArray(feature.allowedRoles) && context?.userRole) {
+    type RoleUnion = NonNullable<FeatureFlag['allowedRoles']>[number];
+    const role = context.userRole as RoleUnion;
+    const allowedRoles = feature.allowedRoles as NonNullable<typeof feature.allowedRoles>;
+    if (!allowedRoles.includes(role)) {
       return false;
     }
   }
   
   // Check rollout percentage
-  if (feature.rolloutPercentage && context?.userId) {
+  if (typeof feature.rolloutPercentage === 'number' && context?.userId) {
     const hash = hashString(context.userId);
     return (hash % 100) < feature.rolloutPercentage;
   }

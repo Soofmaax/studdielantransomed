@@ -7,6 +7,7 @@
 [![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Coverage](https://img.shields.io/codecov/c/github/Soofmaax/studdielantransomed?style=for-the-badge&logo=codecov)](https://codecov.io/gh/Soofmaax/studdielantransomed)
 
 ---
 

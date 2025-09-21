@@ -153,7 +153,7 @@ export default function ReservationPage() {
             startAccessor="start"
             endAccessor="end"
             style={{ height: 600 }}
-            onSelectEvent={event => {
+            onSelectEvent={(event: CalendarEvent) => {
               setSelectedSlot({
                 start: event.start,
                 end: event.end,
