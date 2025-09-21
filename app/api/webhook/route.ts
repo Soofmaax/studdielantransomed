@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { PrismaClient } from '@prisma/client';
 
 import { ApiErrorHandler } from '@/lib/api/error-handler';
+import { notifyBookingCreated } from '@/lib/notifications';
 
 // Stripe initialisation optionnelle (permet un mode démo sans clés)
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
@@ -110,6 +111,14 @@ class StripeWebhookService {
       courseTitle: booking.course.title,
       userEmail: booking.user.email,
       date: booking.date,
+    });
+
+    // Notifications (Telegram + Email avec fallback)
+    await notifyBookingCreated({
+      courseTitle: booking.course.title,
+      date: booking.date.toISOString(),
+      clientName: booking.user.name || 'Client',
+      clientEmail: booking.user.email,
     });
 
     return booking;

@@ -127,7 +127,7 @@ class CheckoutSessionService {
       ],
       mode: 'payment',
       success_url: `${baseUrl}/reservation/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/reservation?cancelled=true`,
+      cancel_url: `${baseUrl}/reservation/cancel`,
       metadata: {
         courseId: data.courseId,
         date: data.date,
