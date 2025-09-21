@@ -6,11 +6,11 @@ import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/li
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/api/auth-middleware';
 
-// Initialisation sécurisée de Stripe avec validation des variables d'environnement
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-  typescript: true,
-});
+// Stripe initialisation en mode "optionnel" pour permettre une démo sans clés
+const stripeKey = process.env.STRIPE_SECRET_KEY || '';
+const stripe = stripeKey
+  ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
+  : null;
 
 const prisma = new PrismaClient();
 
@@ -55,9 +55,6 @@ class CheckoutSessionService {
       throw ApiErrorHandler.notFound(`Cours avec l'ID ${courseId} introuvable`);
     }
 
-    // ====================================================================
-    // == CORRECTION 1 : Conversion du prix Decimal en number ==
-    // ====================================================================
     return {
       ...courseFromDb,
       price: courseFromDb.price.toNumber(),
@@ -66,9 +63,6 @@ class CheckoutSessionService {
 
   /**
    * Vérifie la disponibilité du cours à la date demandée
-   * @param courseId - Identifiant du cours
-   * @param date - Date de la séance
-   * @returns true si disponible, lance une erreur sinon
    */
   private static async checkAvailability(courseId: string, date: string): Promise<boolean> {
     const bookingCount = await prisma.booking.count({
@@ -98,19 +92,18 @@ class CheckoutSessionService {
   }
 
   /**
-   * Crée une session de paiement Stripe sécurisée
-   * @param data - Données de la requête validées
-   * @param course - Données du cours
-   * @returns Session Stripe créée
+   * Crée une session de paiement Stripe réelle
    */
   private static async createStripeSession(
     data: ICreateCheckoutSessionRequest,
     course: ICourseData
   ): Promise<Stripe.Checkout.Session> {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || '';
     if (!baseUrl) {
-      throw new Error('NEXT_PUBLIC_BASE_URL non configurée');
+      throw new Error('Aucune URL de base fournie (NEXT_PUBLIC_BASE_URL ou NEXTAUTH_URL)');
+    }
+    if (!stripe) {
+      throw new Error('Stripe non configuré');
     }
 
     return await stripe.checkout.sessions.create({
@@ -127,7 +120,7 @@ class CheckoutSessionService {
                 level: course.level,
               },
             },
-            unit_amount: Math.round(course.price * 100), // Prix en centimes
+            unit_amount: Math.round(course.price * 100),
           },
           quantity: 1,
         },
@@ -141,7 +134,7 @@ class CheckoutSessionService {
         userId: data.userId,
         bookingType: 'course_booking',
       },
-      expires_at: Math.floor(Date.now() / 1000) + (30 * 60), // Expire dans 30 minutes
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       billing_address_collection: 'required',
       customer_creation: 'always',
       payment_intent_data: {
@@ -154,65 +147,66 @@ class CheckoutSessionService {
   }
 
   /**
+   * Mode démo: renvoie une session factice sans Stripe
+   */
+  private static async createDemoSession(
+    data: ICreateCheckoutSessionRequest
+  ): Promise<{ sessionId: string; url: string | null }> {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || '';
+    const sessionId = `demo_${Date.now()}`;
+    const successUrl = baseUrl ? `${baseUrl}/reservation/success?session_id=${sessionId}&demo=1` : null;
+
+    // On peut marquer une réservation PENDING ici si souhaité, mais pour la démo
+    // on retourne simplement une URL de succès afin de simuler le flux.
+    return { sessionId, url: successUrl };
+  }
+
+  /**
    * Traite la création d'une session de paiement
-   * @param data - Données de la requête validées
-   * @param userId - ID de l'utilisateur authentifié
-   * @returns Réponse avec l'ID de la session
    */
   static async createSession(
     data: ICreateCheckoutSessionRequest,
     userId: string
   ): Promise<{ sessionId: string; url: string | null }> {
-    // Vérification que l'utilisateur réserve pour lui-même (sécurité)
     if (data.userId !== userId) {
       throw ApiErrorHandler.forbidden('Vous ne pouvez réserver que pour vous-même');
     }
 
-    // Récupération des données du cours
     const course = await this.getCourseData(data.courseId);
-
-    // Vérification de la disponibilité
     await this.checkAvailability(data.courseId, data.date);
 
-    // Création de la session Stripe
-    const session = await this.createStripeSession(data, course);
+    // Si Stripe n'est pas configuré, on passe en mode démo
+    if (!stripe) {
+      return this.createDemoSession(data);
+    }
 
-    return {
-      sessionId: session.id,
-      url: session.url,
-    };
+    const session = await this.createStripeSession(data, course);
+    return { sessionId: session.id, url: session.url };
   }
 }
 
 /**
- * Handler POST pour créer une session de paiement Stripe
- * Applique une validation stricte et une sécurité renforcée
+ * Handler POST pour créer une session de paiement
  */
 async function handleCreateCheckoutSession(
   request: NextRequest,
   auth: { user: { id: string } }
 ): Promise<NextResponse> {
   try {
-    // Parsing et validation des données de la requête
     const body = await request.json();
     const validatedData = createCheckoutSessionSchema.parse(body);
 
-    // Création de la session de paiement
     const result = await CheckoutSessionService.createSession(validatedData, auth.user.id);
 
-    // Réponse avec les données de la session
     return NextResponse.json(
       {
         success: true,
         data: result,
-        message: 'Session de paiement créée avec succès',
+        message: stripe ? 'Session de paiement créée avec succès' : 'Mode démo: session simulée',
       },
       { status: 201 }
     );
   } catch (error) {
-    // ====================================================================
-    // == CORRECTION 2 : Suppression du point en trop après le ; ==
-    // ====================================================================
     return ApiErrorHandler.handle(error);
   }
 }
@@ -223,7 +217,7 @@ async function handleCreateCheckoutSession(
 export const POST = withAuth(handleCreateCheckoutSession);
 
 /**
- * Configuration de la route pour optimiser les performances
+ * Configuration de la route
  */
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
