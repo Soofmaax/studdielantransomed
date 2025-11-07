@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
-import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
 
 import { authOptions } from '../auth/next-auth.config';
 import { ApiErrorHandler } from './error-handler';

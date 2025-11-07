@@ -1,6 +1,6 @@
-import { compare } from 'bcrypt';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient, User } from '@prisma/client';
+import { compare } from 'bcrypt';
 import { AuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 

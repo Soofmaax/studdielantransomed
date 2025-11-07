@@ -6,11 +6,10 @@
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
 import { compare } from 'bcrypt';
-import { z } from 'zod';
-
 import { NextAuthOptions, Session, User } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
+import { z } from 'zod';
 
 import { IUserSession } from '@/types/api';
 

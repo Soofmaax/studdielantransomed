@@ -8,7 +8,7 @@ const Cta = () => {
           Prêt à rejoindre Studio Élan ?
         </h2>
         <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
-          Commencez votre voyage vers le bien-être aujourd'hui. Premier cours d'essai à 15€.
+          Commencez votre voyage vers le bien-être aujourd&apos;hui. Premier cours d&apos;essai à 15€.
         </p>
         <Link
           href="/reservation"

@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React, { useState, useCallback, useMemo } from 'react';
 
 import { IHeaderProps, INavigationItem } from '@/types/components';
 import { cn } from '@/lib/utils';
@@ -229,7 +229,7 @@ const Header: React.FC<IHeaderProps> = ({
   const handleMobileToggle = useCallback(() => {
     mobileMenu.toggle();
     onMenuToggle?.();
-  }, [mobileMenu.toggle, onMenuToggle]);
+  }, [mobileMenu, onMenuToggle]);
 
   return (
     <header 
