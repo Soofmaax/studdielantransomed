@@ -2,6 +2,7 @@
 
 import { loadStripe } from '@stripe/stripe-js';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
+// eslint-disable-next-line import/no-duplicates
 import fr from 'date-fns/locale/fr';
 import { useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
