@@ -177,5 +177,4 @@ export class ApiErrorHandler {
     return new ApiError(ErrorType.RATE_LIMIT, message, 429);
   }
 }
-}
 
