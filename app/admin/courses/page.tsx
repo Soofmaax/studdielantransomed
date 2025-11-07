@@ -2,9 +2,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { fetchCourses, deleteCourse } from '@/lib/api/courses';
+
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from '@/components/ui/toast';
+import { fetchCourses, deleteCourse } from '@/lib/api/courses';
 import type { Course } from '@/types/course';
 
 export default function CoursesPage() {

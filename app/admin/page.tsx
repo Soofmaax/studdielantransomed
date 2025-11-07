@@ -21,7 +21,7 @@ export default function AdminDashboard() {
       <div className="mb-8">
         <h1 className="text-2xl font-serif text-gray-900">Tableau de bord</h1>
         <p className="mt-2 text-sm text-gray-700">
-          Vue d'ensemble de l'activité du studio
+          Vue d&apos;ensemble de l&apos;activité du studio
         </p>
       </div>
 

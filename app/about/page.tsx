@@ -29,7 +29,7 @@ export default function AboutPage() {
           </h1>
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-xl text-gray-600 mb-8">
-              Studio Élan est né d'une vision simple : créer un espace où chacun peut explorer et approfondir sa pratique du yoga dans un cadre bienveillant et inspirant.
+              Studio Élan est né d&apos;une vision simple : créer un espace où chacun peut explorer et approfondir sa pratique du yoga dans un cadre bienveillant et inspirant.
             </p>
           </div>
         </div>
@@ -50,7 +50,7 @@ export default function AboutPage() {
             <div>
               <h2 className="text-3xl font-serif text-sage mb-6">Notre Vision</h2>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                Depuis notre création en 2020, nous nous efforçons de créer un environnement où la pratique du yoga devient une expérience transformative. Notre studio, situé au cœur de Paris, est plus qu'un simple espace de pratique - c'est un lieu de rencontre, d'apprentissage et de croissance personnelle.
+                Depuis notre création en 2020, nous nous efforçons de créer un environnement où la pratique du yoga devient une expérience transformative. Notre studio, situé au cœur de Paris, est plus qu&apos;un simple espace de pratique - c&apos;est un lieu de rencontre, d&apos;apprentissage et de croissance personnelle.
               </p>
               <p className="text-gray-600 mb-6 leading-relaxed">
                 Nos professeurs, tous certifiés et passionnés, vous accompagnent dans votre progression, que vous soyez débutant ou pratiquant confirmé. Nous croyons en un yoga accessible à tous, adapté aux besoins et aux capacités de chacun.

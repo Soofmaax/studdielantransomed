@@ -1,9 +1,10 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '@/lib/query-client';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+
 import CoursesPage from '@/app/admin/courses/page';
 import { toast } from '@/components/ui/toast';
 import * as api from '@/lib/api/courses';
+import { queryClient } from '@/lib/query-client';
 
 jest.mock('@/lib/api/courses');
 jest.mock('@/components/ui/toast');

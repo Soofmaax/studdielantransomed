@@ -1,10 +1,10 @@
+import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { PrismaClient } from '@prisma/client';
 
-import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/api/auth-middleware';
+import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 
 // Stripe initialisation en mode "optionnel" pour permettre une démo sans clés
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
