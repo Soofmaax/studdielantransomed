@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-
 import { loadStripe } from '@stripe/stripe-js';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useForm } from 'react-hook-form';
