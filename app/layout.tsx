@@ -2,10 +2,10 @@ import { Inter, Playfair_Display } from 'next/font/google';
 
 import './globals.css';
 
+import Footer from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
 import { Providers } from '@/components/Providers';
 import { Analytics } from '@/components/Analytics';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { AuthProvider } from '@/lib/AuthProvider';
 
 import type { Metadata } from 'next';

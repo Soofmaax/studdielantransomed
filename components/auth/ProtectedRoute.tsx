@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { useAuth } from '@/lib/AuthProvider';
 import type { Role } from '@prisma/client';
 

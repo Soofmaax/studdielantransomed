@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useForm } from 'react-hook-form';
 import { loadStripe } from '@stripe/stripe-js';
+import { useState } from 'react';
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from '@/components/ui/toast';
