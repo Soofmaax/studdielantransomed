@@ -2,8 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/api/auth-middleware';
+import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 
 // Stripe initialisation en mode "optionnel" pour permettre une démo sans clés

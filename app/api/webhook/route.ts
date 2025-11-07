@@ -1,7 +1,7 @@
+import { PrismaClient } from '@prisma/client';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { PrismaClient } from '@prisma/client';
 
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { notifyBookingCreated } from '@/lib/notifications';
