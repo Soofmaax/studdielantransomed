@@ -2,7 +2,7 @@
 
 import { loadStripe } from '@stripe/stripe-js';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import fr from 'date-fns/locale/fr';
 import { useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
