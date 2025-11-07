@@ -5,9 +5,9 @@
 
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import { memo, useState, useCallback, useMemo, forwardRef } from 'react';
+
 import { 
   ImageOptimizationService, 
   StudioImageUtils, 
@@ -15,6 +15,7 @@ import {
   type IImageMetadata,
   type IImageSource 
 } from '@/lib/image-optimization';
+import { cn } from '@/lib/utils';
 
 /**
  * Props du composant OptimizedImage
@@ -121,7 +122,7 @@ function useImageMetadata(props: IOptimizedImageProps): IImageMetadata {
 /**
  * Composant de placeholder pendant le chargement
  */
-const ImagePlaceholder = React.memo<{
+const ImagePlaceholder = memo<{
   width: number;
   height: number;
   className?: string;
@@ -148,7 +149,7 @@ ImagePlaceholder.displayName = 'ImagePlaceholder';
 /**
  * Composant de fallback en cas d'erreur
  */
-const ImageFallback = React.memo<{
+const ImageFallback = memo<{
   width: number;
   height: number;
   alt: string;
@@ -211,7 +212,7 @@ ImageFallback.displayName = 'ImageFallback';
  * - Accessibilité renforcée
  * - Performance optimisée avec Next.js Image
  */
-const OptimizedImage = React.forwardRef<HTMLImageElement, IOptimizedImageProps>(
+const OptimizedImage = forwardRef<HTMLImageElement, IOptimizedImageProps>(
   (props, ref) => {
     const {
       // Remove src/alt from rest props to avoid duplicate JSX attributes
@@ -241,12 +242,12 @@ const OptimizedImage = React.forwardRef<HTMLImageElement, IOptimizedImageProps>(
     const handleImageLoad = useCallback(() => {
       imageLoading.handleLoad();
       onLoad?.();
-    }, [imageLoading.handleLoad, onLoad]);
+    }, [imageLoading, onLoad]);
 
     const handleImageError = useCallback(() => {
       imageLoading.handleError();
       onError?.();
-    }, [imageLoading.handleError, onError]);
+    }, [imageLoading, onErrorng.handleError, onError]);
 
     // Styles pour l'image
     const imageStyles = useMemo(() => ({
