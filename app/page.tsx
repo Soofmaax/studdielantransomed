@@ -24,7 +24,7 @@ export default function Home() {
             Trouvez votre équilibre intérieur
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-            Le yoga n'est pas une simple pratique — c'est un voyage de reconnexion à votre essence véritable.
+            Le yoga n&apos;est pas une simple pratique — c&apos;est un voyage de reconnexion à votre essence véritable.
           </p>
           <Link
             href="/reservation"

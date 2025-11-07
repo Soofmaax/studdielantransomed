@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export default function Error({
   error,
@@ -32,7 +32,7 @@ export default function Error({
             href="/"
             className="inline-block bg-white text-sage px-6 py-2 rounded-full hover:bg-gray-50 transition-colors"
           >
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
         </div>
       </div>
