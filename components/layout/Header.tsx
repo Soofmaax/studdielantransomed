@@ -1,13 +1,13 @@
 'use client';
 
 import { Menu, X, User, LogOut } from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import React, { useState, useCallback, useMemo } from 'react';
 
-import { IHeaderProps, INavigationItem } from '@/types/components';
 import { cn } from '@/lib/utils';
+import { IHeaderProps, INavigationItem } from '@/types/components';
 
 /**
  * Configuration de navigation - Centralisée pour faciliter la maintenance

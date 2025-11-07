@@ -1,9 +1,9 @@
 'use client';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { User } from '@prisma/client';
 
 import { logger } from '@/lib/logger';
+import type { User } from '@prisma/client';
 
 interface AuthContextType {
   user: User | null;

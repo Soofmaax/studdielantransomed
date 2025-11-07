@@ -1,9 +1,9 @@
 'use client';
 
+import { Home, Users, Book, BarChart, LogOut, Shield } from 'lucide-react'; // Icônes de Lucide
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
-import { Home, Users, Book, BarChart, LogOut, Shield } from 'lucide-react'; // Icônes de Lucide
 import React, { useMemo } from 'react';
 
 import { cn } from '@/lib/utils'; // J'utilise votre fonction `cn`

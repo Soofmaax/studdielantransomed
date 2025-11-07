@@ -247,7 +247,7 @@ const OptimizedImage = forwardRef<HTMLImageElement, IOptimizedImageProps>(
     const handleImageError = useCallback(() => {
       imageLoading.handleError();
       onError?.();
-    }, [imageLoading, onErrorng.handleError, onError]);
+    }, [onError]);
 
     // Styles pour l'image
     const imageStyles = useMemo(() => ({
