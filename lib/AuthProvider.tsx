@@ -3,6 +3,7 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { logger } from '@/lib/logger';
+
 import type { User } from '@prisma/client';
 
 interface AuthContextType {

@@ -1,13 +1,4 @@
 import { Inter, Playfair_Display } from 'next/font/google';
-import './globals.css';
-
-import { Analytics } from '@/components/Analytics';
-import { Providers } from '@/components/Providers';
-import Footer from '@/components/layout/Footer';
-import Header from '@/components/layout/Header';
-import { AuthProvider } from '@/lib/AuthProvider';
-
-import { Inter, Playfair_Display } from 'next/font/google';
 
 import './globals.css';
 

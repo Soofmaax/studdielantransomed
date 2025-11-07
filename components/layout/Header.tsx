@@ -4,7 +4,7 @@ import { Menu, X, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, memo } from 'react';
 
 import { cn } from '@/lib/utils';
 import { IHeaderProps, INavigationItem } from '@/types/components';
@@ -110,7 +110,7 @@ interface INavigationLinkProps {
   onClick?: () => void;
 }
 
-const NavigationLink = React.memo<INavigationLinkProps>(({ 
+const NavigationLink = memo<INavigationLinkProps>(({ 
   item, 
   isMobile = false, 
   onClick 
@@ -133,7 +133,7 @@ NavigationLink.displayName = 'NavigationLink';
 /**
  * Composant UserMenu - Gestion de l'authentification
  */
-const UserMenu = React.memo(() => {
+const UserMenu = memo(() => {
   const { data: session, status } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
