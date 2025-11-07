@@ -1,6 +1,6 @@
+import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
-import { Prisma } from '@prisma/client';
 
 /**
  * Types d'erreurs standardisés pour une gestion cohérente
@@ -176,5 +176,6 @@ export class ApiErrorHandler {
   static rateLimited(message = 'Trop de requêtes'): ApiError {
     return new ApiError(ErrorType.RATE_LIMIT, message, 429);
   }
+}
 }
 
