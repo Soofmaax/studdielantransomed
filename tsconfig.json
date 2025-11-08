@@ -33,7 +33,7 @@
     "e2e/**/*",
     "middleware.ts",
     "next.config.js",
-    "jest.config.js",
+    "jest.config.cjs",
     "jest.setup.js",
     ".next/types/**/*.ts"
   ],
