@@ -6,17 +6,25 @@ import type { JwtService } from '@nestjs/jwt';
 
 jest.mock('bcrypt');
 // Provide a minimal runtime stub for Nest imports used by AuthService
-jest.mock('@nestjs/common', () => ({
-  UnauthorizedException: class UnauthorizedException extends Error {
-    constructor(message?: string) {
-      super(message);
-      this.name = 'UnauthorizedException';
-    }
-  },
-}));
-jest.mock('@nestjs/jwt', () => ({
-  JwtService: class JwtService {},
-}));
+jest.mock(
+  '@nestjs/common',
+  () => ({
+    UnauthorizedException: class UnauthorizedException extends Error {
+      constructor(message?: string) {
+        super(message);
+        this.name = 'UnauthorizedException';
+      }
+    },
+  }),
+  { virtual: true }
+);
+jest.mock(
+  '@nestjs/jwt',
+  () => ({
+    JwtService: class JwtService {},
+  }),
+  { virtual: true }
+);
 
 describe('AuthService', () => {
   let service: AuthService;

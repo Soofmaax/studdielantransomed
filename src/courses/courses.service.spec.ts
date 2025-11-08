@@ -5,14 +5,18 @@ import type { PrismaService } from '../prisma/prisma.service';
 import type { CreateCourseDto } from './dto/create-course.dto';
 
 // Minimal runtime stub for Nest imports used by CoursesService
-jest.mock('@nestjs/common', () => ({
-  NotFoundException: class NotFoundException extends Error {
-    constructor(message?: string) {
-      super(message);
-      this.name = 'NotFoundException';
-    }
-  },
-}));
+jest.mock(
+  '@nestjs/common',
+  () => ({
+    NotFoundException: class NotFoundException extends Error {
+      constructor(message?: string) {
+        super(message);
+        this.name = 'NotFoundException';
+      }
+    },
+  }),
+  { virtual: true }
+);
 
 describe('CoursesService', () => {
   let service: CoursesService;
