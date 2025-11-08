@@ -8,7 +8,19 @@ module.exports = {
   testMatch: ['**/?(*.)+(spec|test).ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
-    '^.+\\\\.(t|j)s
+    '^.+\\.(t|j)s
+    './src/**/{!(index),}.ts': {
+      lines: 75
+    }
+  },
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.backend.json',
+      isolatedModules: true
+    }
+  }
+};: 'ts-jest',
+  },
   collectCoverageFrom: [
     'src/**/*.{ts}',
     '!src/**/?(*.)+(spec|test).ts',
@@ -22,6 +34,18 @@ module.exports = {
       lines: 75,
       statements: 75
     },
+    './src/**/{!(index),}.ts': {
+      lines: 75
+    }
+  },
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.backend.json',
+      isolatedModules: true
+    }
+  }
+};: 'ts-jest',
+  },
     './src/**/{!(index),}.ts': {
       lines: 75
     }
