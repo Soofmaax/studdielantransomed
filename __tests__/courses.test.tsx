@@ -48,7 +48,8 @@ describe('CoursesPage', () => {
   });
 
   it('handles course deletion', async () => {
-    (api.fetchCourses as jest.Mock).mockResolvedValueOnce(mockCourses);
+    // Ensure the query returns data both initially and after invalidation
+    (api.fetchCourses as jest.Mock).mockResolvedValue(mockCourses);
     (api.deleteCourse as jest.Mock).mockResolvedValueOnce({});
     
     renderWithProviders(<CoursesPage />);
@@ -57,12 +58,14 @@ describe('CoursesPage', () => {
       expect(screen.getByText('Yoga Vinyasa')).toBeInTheDocument();
     });
 
+    // Confirm deletion
     window.confirm = jest.fn(() => true);
     
     fireEvent.click(screen.getByText('Supprimer'));
     
     await waitFor(() => {
-      expect(api.deleteCourse).toHaveBeenCalledWith('1');
+      // React Query v5 passes a second context argument to mutationFn; assert first arg only
+      expect(api.deleteCourse).toHaveBeenCalledWith('1', expect.anything());
       expect(toast).toHaveBeenCalledWith({
         title: 'Succès',
         description: 'Le cours a été supprimé',
