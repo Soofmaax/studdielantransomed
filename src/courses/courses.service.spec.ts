@@ -1,6 +1,8 @@
-import { CoursesService } from './courses.service';
-import { CreateCourseDto } from './dto/create-course.dto';
 import { Level } from '@prisma/client';
+
+import { CoursesService } from './courses.service';
+import type { PrismaService } from '../prisma/prisma.service';
+import type { CreateCourseDto } from './dto/create-course.dto';
 
 // Minimal runtime stub for Nest imports used by CoursesService
 jest.mock('@nestjs/common', () => ({
@@ -26,7 +28,9 @@ describe('CoursesService', () => {
   };
 
   beforeEach(() => {
-    service = new CoursesService(mockPrismaService as any);
+    service = new CoursesService(
+      mockPrismaService as unknown as PrismaService
+    );
   });
 
   it('should be defined', () => {

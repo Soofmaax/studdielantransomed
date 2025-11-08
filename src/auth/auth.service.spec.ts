@@ -1,5 +1,8 @@
-import { AuthService } from './auth.service';
 import * as bcrypt from 'bcrypt';
+
+import { AuthService } from './auth.service';
+import type { UsersService } from '../users/users.service';
+import type { JwtService } from '@nestjs/jwt';
 
 jest.mock('bcrypt');
 // Provide a minimal runtime stub for Nest imports used by AuthService
@@ -28,8 +31,8 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     service = new AuthService(
-      mockUsersService as any,
-      mockJwtService as any,
+      mockUsersService as unknown as UsersService,
+      mockJwtService as unknown as JwtService,
     );
   });
 
