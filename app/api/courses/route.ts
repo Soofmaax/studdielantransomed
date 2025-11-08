@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import prisma from '@/lib/prisma';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
+import { withAdminAuth } from '@/lib/api/auth-middleware';
+import { createCourseSchema } from '@/lib/validations/course';
 
 /**
  * GET /api/courses
@@ -18,6 +20,25 @@ export async function GET(): Promise<NextResponse> {
     return ApiErrorHandler.handle(error);
   }
 }
+
+/**
+ * POST /api/courses
+ * Creates a new course (admin only).
+ */
+export const POST = withAdminAuth(async (request: NextRequest) => {
+  try {
+    const body = await request.json();
+    const data = createCourseSchema.parse(body);
+
+    const course = await prisma.course.create({
+      data,
+    });
+
+    return NextResponse.json(course, { status: 201 });
+  } catch (error) {
+    return ApiErrorHandler.handle(error);
+  }
+});
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

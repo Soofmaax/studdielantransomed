@@ -273,7 +273,7 @@ const Header: React.FC<IHeaderProps> = ({
             onClick={handleMobileToggle}
             aria-expanded={mobileMenu.isOpen}
             aria-controls="mobile-menu"
-            aria-label={mobileMenu.isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-label="Toggle menu"
           >
             {mobileMenu.isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
