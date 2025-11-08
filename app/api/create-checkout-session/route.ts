@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+import prisma from '@/lib/prisma';
 import { withAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
@@ -11,8 +11,6 @@ const stripeKey = process.env.STRIPE_SECRET_KEY || '';
 const stripe = stripeKey
   ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
   : null;
-
-const prisma = new PrismaClient();
 
 /**
  * Interface pour les données du cours récupérées de la base de données

@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
+import prisma from '@/lib/prisma';
 import { withAdminAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { notifyBookingReminder } from '@/lib/notifications';
-
-const prisma = new PrismaClient();
 
 export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
