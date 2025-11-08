@@ -157,6 +157,13 @@ export class ApiErrorHandler {
   }
 
   /**
+   * Crée une erreur de requête invalide (400)
+   */
+  static badRequest(message = 'Requête invalide'): ApiError {
+    return new ApiError(ErrorType.VALIDATION, message, 400);
+  }
+
+  /**
    * Crée une erreur de ressource non trouvée
    */
   static notFound(message = 'Ressource introuvable'): ApiError {

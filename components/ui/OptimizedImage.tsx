@@ -322,7 +322,7 @@ OptimizedImage.displayName = 'OptimizedImage';
 /**
  * Composant spécialisé pour les images hero
  */
-export const HeroImage = React.memo<
+export const HeroImage = memo<
   Omit<IOptimizedImageProps, 'category' | 'priority' | 'loading'>
 >(props => (
   <OptimizedImage
@@ -339,7 +339,7 @@ HeroImage.displayName = 'HeroImage';
 /**
  * Composant spécialisé pour les cartes de contenu
  */
-export const CardImage = React.memo<
+export const CardImage = memo<
   Omit<IOptimizedImageProps, 'category'>
 >(props => (
   <OptimizedImage
@@ -354,7 +354,7 @@ CardImage.displayName = 'CardImage';
 /**
  * Composant spécialisé pour les avatars
  */
-export const AvatarImage = React.memo<
+export const AvatarImage = memo<
   Omit<IOptimizedImageProps, 'category' | 'objectFit'>
 >(props => (
   <OptimizedImage
@@ -370,7 +370,7 @@ AvatarImage.displayName = 'AvatarImage';
 /**
  * Composant spécialisé pour les galeries
  */
-export const GalleryImage = React.memo<
+export const GalleryImage = memo<
   Omit<IOptimizedImageProps, 'category'>
 >(props => (
   <OptimizedImage

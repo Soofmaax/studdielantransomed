@@ -194,7 +194,7 @@ export function useLazyComponent<T extends ComponentType<any>>(
 /**
  * Composant wrapper pour les sections critiques above-the-fold
  */
-export const CriticalSection = React.memo<{
+export const CriticalSection = memo<{
   children: ReactNode;
   className?: string;
 }>(({ children, className }) => (
@@ -207,7 +207,7 @@ CriticalSection.displayName = 'CriticalSection';
 /**
  * Composant wrapper pour les sections non-critiques below-the-fold
  */
-export const NonCriticalSection = React.memo<
+export const NonCriticalSection = memo<
   Omit<ILazySectionProps, 'once'>
 >(props => (
   <LazySection {...props} once={true} />

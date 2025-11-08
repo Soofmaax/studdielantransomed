@@ -5,8 +5,8 @@ import { useSearchParams } from 'next/navigation';
 
 export default function ReservationSuccessPage() {
   const search = useSearchParams();
-  const sessionId = search.get('session_id');
-  const isDemo = search.get('demo') === '1';
+  const sessionId = search?.get('session_id') || null;
+  const isDemo = (search?.get('demo') ?? '') === '1';
 
   return (
     <div className="container mx-auto px-4 py-24">
