@@ -8,7 +8,7 @@ module.exports = {
   testMatch: ['**/?(*.)+(spec|test).ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
-    '^.+\\.ts: 'ts-jest'
+    '^.+\\.(t|j)s: 'ts-jest',
   },
   collectCoverageFrom: [
     'src/**/*.{ts}',
