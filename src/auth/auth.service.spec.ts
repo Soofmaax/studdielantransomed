@@ -9,6 +9,7 @@ jest.mock('bcrypt');
 jest.mock(
   '@nestjs/common',
   () => ({
+    Injectable: () => (target: unknown) => target,
     UnauthorizedException: class UnauthorizedException extends Error {
       constructor(message?: string) {
         super(message);

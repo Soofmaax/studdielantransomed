@@ -8,6 +8,7 @@ import type { CreateCourseDto } from './dto/create-course.dto';
 jest.mock(
   '@nestjs/common',
   () => ({
+    Injectable: () => (target: unknown) => target,
     NotFoundException: class NotFoundException extends Error {
       constructor(message?: string) {
         super(message);
