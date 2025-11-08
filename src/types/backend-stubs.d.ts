@@ -29,6 +29,14 @@ declare module '@nestjs/common' {
       getRequest<T = any>(): T;
     };
   }
+  export interface ExecutionContext {
+    switchToHttp(): {
+      getResponse<T = any>(): T;
+      getRequest<T = any>(): T;
+    };
+    getHandler(): any;
+    getClass(): any;
+  }
   export class HttpException extends Error {
     getStatus(): number;
     message: string;
@@ -37,7 +45,6 @@ declare module '@nestjs/common' {
     INTERNAL_SERVER_ERROR = 500,
   }
   export type NestInterceptor = any;
-  export type ExecutionContext = any;
   export type CallHandler = any;
 
   export function Module(metadata: any): ClassDecorator;
@@ -126,13 +133,14 @@ declare module '@nestjs/config' {
     forRoot(options?: any): any;
   };
   export class ConfigService {
-    get<T = any>(key: string): T;
+    get<T = any>(key: string, defaultValue?: T): T;
   }
 }
 
 declare module '@nestjs/jwt' {
   export const JwtModule: {
     register(options: any): any;
+    registerAsync(options: any): any;
   };
   export class JwtService {
     sign(payload: any, options?: any): string;
@@ -144,9 +152,7 @@ declare module '@nestjs/passport' {
   export const PassportModule: {
     register(options: any): any;
   };
-  export class PassportStrategy<T = any> {
-    constructor(strategy: T);
-  }
+  export function PassportStrategy<T = any>(strategy: T): any;
 }
 
 declare module 'passport-jwt' {
@@ -177,5 +183,7 @@ declare module 'rxjs/operators' {
 declare module 'express' {
   export interface Response {
     statusCode: number;
+    status(code: number): Response;
+    json(body: any): void;
   }
 }
