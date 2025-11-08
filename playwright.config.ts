@@ -56,7 +56,8 @@ const config: PlaywrightTestConfig = {
   ],
   outputDir: 'test-results/',
   webServer: {
-    command: 'npm run dev',
+    // Active les contrôles e2e côté client pour les tests
+    command: 'NEXT_PUBLIC_E2E=1 npm run dev',
     port: 3000,
     reuseExistingServer: !process.env.CI,
   },

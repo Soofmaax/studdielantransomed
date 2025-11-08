@@ -176,7 +176,7 @@ class AuthenticationService {
 
     // Redirection des utilisateurs authentifiés depuis la page de login
     if (pathname === '/login' && token) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL('/admin', request.url));
     }
 
     return null;

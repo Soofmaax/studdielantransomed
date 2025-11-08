@@ -101,6 +101,7 @@ npm run dev
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Clé publique Stripe | `pk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Secret webhook Stripe | `whsec_...` |
 | `NEXT_PUBLIC_SENTRY_DSN` | DSN Sentry (optionnel) | `https://...@sentry.io/...` |
+| `NEXT_PUBLIC_E2E` | Active les contrôles de test e2e dans la page Réservation | `1` ou `0` |
 
 ---
 
@@ -115,6 +116,10 @@ npm run test:coverage     # Avec couverture
 
 ### Tests End-to-End
 ```bash
+# Active les contrôles e2e si nécessaire
+# (Permet de simuler la sélection d'un cours et d'un créneau sur /reservation)
+export NEXT_PUBLIC_E2E=1
+
 npm run test:e2e          # Tests Playwright
 npm run test:e2e:ui       # Interface graphique
 ```

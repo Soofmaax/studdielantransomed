@@ -52,6 +52,7 @@ export default function ReservationPage() {
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const { handleSubmit } = useForm();
+  const showE2EControls = process.env.NEXT_PUBLIC_E2E === '1';
 
   // Helper: fetch Yoga Vinyasa course id for e2e test flow
   useEffect(() => {
@@ -167,40 +168,42 @@ export default function ReservationPage() {
       <h1 className="text-3xl font-serif text-sage mb-8">Réserver un cours</h1>
 
       {/* Test controls for e2e alignment (minimal footprint) */}
-      <div className="mb-4 flex items-center gap-4 text-xs text-gray-500">
-        <button
-          type="button"
-          data-testid="course-card-yoga-vinyasa"
-          className="border px-2 py-1 rounded"
-          onClick={() => {
-            // Select Yoga Vinyasa course if available; otherwise keep current
-            if (selectedCourseId) {
-              // wait for time selection
-            }
-          }}
-        >
-          Sélectionner Yoga Vinyasa (test)
-        </button>
-        <button
-          type="button"
-          data-testid="time-slot-10:00"
-          className="border px-2 py-1 rounded"
-          onClick={() => {
-            const baseDate = new Date();
-            baseDate.setHours(10, 0, 0, 0);
-            const endDate = new Date(baseDate.getTime() + 60 * 60000);
-            setSelectedSlot({
-              start: baseDate,
-              end: endDate,
-              slots: [baseDate],
-              action: 'click',
-              resource: { id: selectedCourseId || events[0]?.resource?.id },
-            });
-          }}
-        >
-          Choisir créneau 10:00 (test)
-        </button>
-      </div>
+      {showE2EControls && (
+        <div className="mb-4 flex items-center gap-4 text-xs text-gray-500">
+          <button
+            type="button"
+            data-testid="course-card-yoga-vinyasa"
+            className="border px-2 py-1 rounded"
+            onClick={() => {
+              // Select Yoga Vinyasa course if available; otherwise keep current
+              if (selectedCourseId) {
+                // wait for time selection
+              }
+            }}
+          >
+            Sélectionner Yoga Vinyasa (test)
+          </button>
+          <button
+            type="button"
+            data-testid="time-slot-10:00"
+            className="border px-2 py-1 rounded"
+            onClick={() => {
+              const baseDate = new Date();
+              baseDate.setHours(10, 0, 0, 0);
+              const endDate = new Date(baseDate.getTime() + 60 * 60000);
+              setSelectedSlot({
+                start: baseDate,
+                end: endDate,
+                slots: [baseDate],
+                action: 'click',
+                resource: { id: selectedCourseId || events[0]?.resource?.id },
+              });
+            }}
+          >
+            Choisir créneau 10:00 (test)
+          </button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">

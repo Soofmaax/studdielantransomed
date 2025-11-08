@@ -18,6 +18,19 @@ async function main() {
     },
   });
 
+  // Create client user for e2e
+  const clientPassword = await bcrypt.hash('client123', 10);
+  await prisma.user.upsert({
+    where: { email: 'client@example.com' },
+    update: {},
+    create: {
+      email: 'client@example.com',
+      name: 'Client Test',
+      password: clientPassword,
+      role: 'CLIENT',
+    },
+  });
+
   // Create courses
   await prisma.course.createMany({
     skipDuplicates: true,

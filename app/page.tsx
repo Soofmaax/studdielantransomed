@@ -34,7 +34,7 @@ export default function Home() {
             href="/reservation"
             className="inline-block bg-sage hover:bg-gold text-white px-8 py-4 rounded-full text-lg transition-colors duration-300"
           >
-            Réserver une séance
+            Réserver
           </Link>
         </div>
       </section>

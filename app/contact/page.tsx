@@ -30,7 +30,7 @@ export default function ContactPage() {
       
       toast({
         title: 'Succès',
-        description: 'Votre message a été envoyé',
+        description: 'Message envoyé',
         variant: 'success',
       });
       
