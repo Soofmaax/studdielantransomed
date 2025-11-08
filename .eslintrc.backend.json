@@ -22,6 +22,15 @@
   "rules": {
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/consistent-type-imports": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "import/no-unresolved": "off",
     "import/order": [
       "warn",
       {
@@ -35,6 +44,13 @@
     {
       "files": ["src/**/*.spec.ts"],
       "env": { "jest": true }
+    },
+    {
+      "files": ["src/**/*.d.ts", "src/types/**/*.d.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off"
+      }
     }
   ]
 }

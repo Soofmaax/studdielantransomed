@@ -10,11 +10,13 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "sourceMap": false,
-    "types": ["node"],
+    "types": ["node", "jest"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "dist", ".next"]
 }

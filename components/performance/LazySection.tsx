@@ -1,6 +1,6 @@
 'use client';
 
-import React, { 
+import { 
   useState, 
   useEffect, 
   useRef, 
@@ -8,8 +8,12 @@ import React, {
   useMemo,
   Suspense,
   ComponentType,
-  ReactNode 
+  ReactNode,
+  memo,
+  forwardRef,
+  lazy,
 } from 'react';
+
 import { cn } from '@/lib/utils';
 
 /**
@@ -89,7 +93,7 @@ function useIntersectionObserver(
 /**
  * Composant de fallback par défaut pendant le chargement
  */
-const DefaultFallback = React.memo<{ className?: string }>(({ className }) => (
+const DefaultFallback = memo<{ className?: string }>(({ className }) => (
   <div 
     className={cn(
       'flex items-center justify-center py-12',
@@ -111,7 +115,7 @@ DefaultFallback.displayName = 'DefaultFallback';
 /**
  * Composant LazySection principal
  */
-const LazySection = React.forwardRef<HTMLDivElement, ILazySectionProps>(
+const LazySection = forwardRef<HTMLDivElement, ILazySectionProps>(
   ({
     children,
     className,
@@ -184,13 +188,13 @@ LazySection.displayName = 'LazySection';
 export function useLazyComponent<T extends ComponentType<any>>(
   importFn: () => Promise<{ default: T }>
 ) {
-  return useMemo(() => React.lazy(importFn), [importFn]);
+  return useMemo(() => lazy(importFn), [importFn]);
 }
 
 /**
  * Composant wrapper pour les sections critiques above-the-fold
  */
-export const CriticalSection = React.memo<{
+export const CriticalSection = memo<{
   children: ReactNode;
   className?: string;
 }>(({ children, className }) => (
@@ -203,7 +207,7 @@ CriticalSection.displayName = 'CriticalSection';
 /**
  * Composant wrapper pour les sections non-critiques below-the-fold
  */
-export const NonCriticalSection = React.memo<
+export const NonCriticalSection = memo<
   Omit<ILazySectionProps, 'once'>
 >(props => (
   <LazySection {...props} once={true} />

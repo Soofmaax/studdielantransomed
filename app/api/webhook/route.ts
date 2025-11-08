@@ -1,7 +1,7 @@
+import { PrismaClient } from '@prisma/client';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { PrismaClient } from '@prisma/client';
 
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { notifyBookingCreated } from '@/lib/notifications';
@@ -126,7 +126,17 @@ class StripeWebhookService {
 
   static async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session): Promise<void> {
     const metadata = this.validateSessionMetadata(session.metadata);
-    await this.createConfirmedBooking(metadata, session);
+    // Adapter l'objet session aux champs attendus par createConfirmedBooking
+    const adaptedSession = {
+      id: session.id,
+      payment_intent:
+        typeof session.payment_intent === 'string'
+          ? session.payment_intent
+          : session.payment_intent?.id ?? null,
+      amount_total: session.amount_total ?? null,
+      currency: session.currency ?? null,
+    };
+    await this.createConfirmedBooking(metadata, adaptedSession);
     console.info(`Webhook traité avec succès pour la session ${session.id}`);
   }
 }

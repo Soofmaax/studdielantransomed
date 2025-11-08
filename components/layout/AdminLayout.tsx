@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import { Home, Users, Book, BarChart, LogOut, Shield } from 'lucide-react'; // Icônes de Lucide
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Home, Users, Book, BarChart, LogOut, Shield } from 'lucide-react'; // Icônes de Lucide
+import React, { memo, useMemo } from 'react';
+
 import { cn } from '@/lib/utils'; // J'utilise votre fonction `cn`
 
 /**
@@ -36,7 +37,7 @@ const adminLayoutStyles = {
 /**
  * Composant AdminNavLink - Réutilisable et inspiré de votre NavigationLink
  */
-const AdminNavLink = React.memo(({ item }: { item: (typeof ADMIN_NAVIGATION_CONFIG)[number] & { isActive: boolean } }) => (
+const AdminNavLink = memo(({ item }: { item: (typeof ADMIN_NAVIGATION_CONFIG)[number] & { isActive: boolean } }) => (
   <Link
     href={item.href}
     className={cn(

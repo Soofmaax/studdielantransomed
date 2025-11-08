@@ -1,17 +1,34 @@
-```typescript
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { AuthService } from './auth.service';
+import type { UsersService } from '../users/users.service';
+import type { JwtService } from '@nestjs/jwt';
+
 jest.mock('bcrypt');
+// Provide a minimal runtime stub for Nest imports used by AuthService
+jest.mock(
+  '@nestjs/common',
+  () => ({
+    Injectable: () => (target: unknown) => target,
+    UnauthorizedException: class UnauthorizedException extends Error {
+      constructor(message?: string) {
+        super(message);
+        this.name = 'UnauthorizedException';
+      }
+    },
+  }),
+  { virtual: true }
+);
+jest.mock(
+  '@nestjs/jwt',
+  () => ({
+    JwtService: class JwtService {},
+  }),
+  { virtual: true }
+);
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: UsersService;
-  let jwtService: JwtService;
 
   const mockUsersService = {
     findByEmail: jest.fn(),
@@ -22,23 +39,10 @@ describe('AuthService', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        {
-          provide: UsersService,
-          useValue: mockUsersService,
-        },
-        {
-          provide: JwtService,
-          useValue: mockJwtService,
-        },
-      ],
-    }).compile();
-
-    service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
-    jwtService = module.get<JwtService>(JwtService);
+    service = new AuthService(
+      mockUsersService as unknown as UsersService,
+      mockJwtService as unknown as JwtService,
+    );
   });
 
   describe('login', () => {
@@ -47,7 +51,7 @@ describe('AuthService', () => {
 
       await expect(
         service.login({ email: 'test@test.com', password: 'wrong' })
-      ).rejects.toThrow(UnauthorizedException);
+      ).rejects.toThrow('Invalid credentials');
     });
 
     it('should return access token for valid credentials', async () => {
@@ -80,4 +84,3 @@ describe('AuthService', () => {
     });
   });
 });
-```

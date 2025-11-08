@@ -1,6 +1,6 @@
+import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
-import { Prisma } from '@prisma/client';
 
 /**
  * Types d'erreurs standardisés pour une gestion cohérente
@@ -154,6 +154,13 @@ export class ApiErrorHandler {
    */
   static forbidden(message = 'Accès interdit'): ApiError {
     return new ApiError(ErrorType.AUTHORIZATION, message, 403);
+  }
+
+  /**
+   * Crée une erreur de requête invalide (400)
+   */
+  static badRequest(message = 'Requête invalide'): ApiError {
+    return new ApiError(ErrorType.VALIDATION, message, 400);
   }
 
   /**

@@ -1,9 +1,10 @@
+import { User } from '@prisma/client';
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { User } from '@prisma/client';
+
+import { authOptions } from '../auth/next-auth.config';
 
 import { ApiErrorHandler } from './error-handler';
-import { authOptions } from '../auth/next-auth.config';
 
 /**
  * Interface pour l'utilisateur authentifié dans le contexte API

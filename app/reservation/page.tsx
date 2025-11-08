@@ -1,17 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { loadStripe } from '@stripe/stripe-js';
+// eslint-disable-next-line import/no-duplicates
 import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { fr } from 'date-fns/locale';
+// eslint-disable-next-line import/no-duplicates
+import fr from 'date-fns/locale/fr';
+import { useState } from 'react';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { useForm } from 'react-hook-form';
 
-import { useAuth } from '@/lib/AuthProvider';
-import { useBookings } from '@/hooks/use-bookings';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from '@/components/ui/toast';
-import { loadStripe } from '@stripe/stripe-js';
+import { useBookings } from '@/hooks/use-bookings';
+import { useAuth } from '@/lib/AuthProvider';
 import { IBookingWithRelations } from '@/types/api'; // On importe votre type existant
 
 // Configuration du localizer pour date-fns
@@ -72,7 +74,7 @@ export default function ReservationPage() {
     try {
       const stripe = await stripePromise;
       if (!stripe) {
-        throw new Error('Stripe.js n\'a pas pu être chargé.');
+        throw new Error("Stripe.js n'a pas pu être chargé.");
       }
 
       const response = await fetch('/api/create-checkout-session', {

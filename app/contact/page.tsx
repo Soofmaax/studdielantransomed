@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+
 import { toast } from '@/components/ui/toast';
 import { logger } from '@/lib/logger';
 
@@ -116,7 +117,7 @@ export default function ContactPage() {
                     required
                   >
                     <option value="">Sélectionnez un sujet</option>
-                    <option value="information">Demande d'information</option>
+                    <option value="information">Demande d&apos;information</option>
                     <option value="reservation">Réservation</option>
                     <option value="other">Autre</option>
                   </select>
@@ -155,7 +156,7 @@ export default function ContactPage() {
               </div>
 
               <div className="bg-cream rounded-lg p-8">
-                <h3 className="text-xl font-serif text-sage mb-4">Horaires d'ouverture</h3>
+                <h3 className="text-xl font-serif text-sage mb-4">Horaires d&apos;ouverture</h3>
                 <div className="space-y-2 text-gray-600">
                   <p>Lundi - Vendredi: 8h - 21h</p>
                   <p>Samedi: 9h - 18h</p>

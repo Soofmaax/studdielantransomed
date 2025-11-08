@@ -1,11 +1,14 @@
-import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
+
 import './globals.css';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import { AuthProvider } from '@/lib/AuthProvider';
+
 import { Analytics } from '@/components/Analytics';
+import Footer from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
 import { Providers } from '@/components/Providers';
+import { AuthProvider } from '@/lib/AuthProvider';
+
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });

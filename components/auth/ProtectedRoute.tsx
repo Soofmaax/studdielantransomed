@@ -1,7 +1,11 @@
-import { useRouter } from 'next/router';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAuth } from '@/lib/AuthProvider';
+
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useAuth } from '@/lib/AuthProvider';
+
 import type { Role } from '@prisma/client';
 
 interface ProtectedRouteProps {

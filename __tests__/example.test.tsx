@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { render, screen } from '@testing-library/react';
+
 import { queryClient } from '@/lib/query-client';
 
 const renderWithProviders = (ui: React.ReactElement) => {

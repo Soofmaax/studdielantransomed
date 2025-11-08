@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/AuthProvider';
+import { useState } from 'react';
+
 import { ErrorMessage } from '@/components/ui/error-message';
+import { useAuth } from '@/lib/AuthProvider';
 import type { ApiError } from '@/types/api';
 
 export default function LoginPage() {

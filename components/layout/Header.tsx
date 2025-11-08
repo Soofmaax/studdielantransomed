@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, User, LogOut } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
+import React, { useState, useCallback, useMemo, memo } from 'react';
 
-import { IHeaderProps, INavigationItem } from '@/types/components';
 import { cn } from '@/lib/utils';
+import { IHeaderProps, INavigationItem } from '@/types/components';
 
 /**
  * Configuration de navigation - Centralisée pour faciliter la maintenance
@@ -110,7 +110,7 @@ interface INavigationLinkProps {
   onClick?: () => void;
 }
 
-const NavigationLink = React.memo<INavigationLinkProps>(({ 
+const NavigationLink = memo<INavigationLinkProps>(({ 
   item, 
   isMobile = false, 
   onClick 
@@ -133,7 +133,7 @@ NavigationLink.displayName = 'NavigationLink';
 /**
  * Composant UserMenu - Gestion de l'authentification
  */
-const UserMenu = React.memo(() => {
+const UserMenu = memo(() => {
   const { data: session, status } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -229,7 +229,7 @@ const Header: React.FC<IHeaderProps> = ({
   const handleMobileToggle = useCallback(() => {
     mobileMenu.toggle();
     onMenuToggle?.();
-  }, [mobileMenu.toggle, onMenuToggle]);
+  }, [mobileMenu, onMenuToggle]);
 
   return (
     <header 

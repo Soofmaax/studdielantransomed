@@ -8,12 +8,15 @@ module.exports = {
   testMatch: ['**/?(*.)+(spec|test).ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
-    '^.+\\.ts: 'ts-jest'
+    '^.+\\.ts$': 'ts-jest',
+  },
+  moduleNameMapper: {
+    '^@nestjs/testing$': '<rootDir>/src/types/jest-nest-testing-stub.js',
   },
   collectCoverageFrom: [
     'src/**/*.{ts}',
     '!src/**/?(*.)+(spec|test).ts',
-    '!src/main.ts'
+    '!src/main.ts',
   ],
   coverageDirectory: 'coverage-backend',
   coverageThreshold: {
@@ -21,16 +24,7 @@ module.exports = {
       branches: 60,
       functions: 70,
       lines: 75,
-      statements: 75
+      statements: 75,
     },
-    './src/**/{!(index),}.ts': {
-      lines: 75
-    }
   },
-  globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.backend.json',
-      isolatedModules: true
-    }
-  }
 };

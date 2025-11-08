@@ -1,5 +1,5 @@
-import { Course } from '@/types/course';
 import { logger } from '@/lib/logger';
+import { Course } from '@/types/course';
 
 // Fallback local API route to avoid undefined base URL during builds/tests
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';

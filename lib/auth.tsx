@@ -5,9 +5,9 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { signIn, signOut, useSession } from 'next-auth/react';
 import { Session } from 'next-auth';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 import { IAuthContext, IUserSession } from '@/types/api';
 

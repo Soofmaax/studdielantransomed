@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { sendTelegramMessage, sendEmail } from '@/lib/notifications';
 
 export async function POST() {

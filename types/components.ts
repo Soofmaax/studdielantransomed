@@ -4,6 +4,7 @@
  */
 
 import { ReactNode, ComponentPropsWithoutRef, ElementType } from 'react';
+
 import { IPublicCourse, IPublicUser, IBookingWithRelations } from './api';
 
 // =============================================================================

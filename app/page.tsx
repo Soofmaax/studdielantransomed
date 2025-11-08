@@ -1,8 +1,10 @@
+import Image from 'next/image';
+import Link from 'next/link';
+
 import About from '@/components/sections/About';
+import Cta from '@/components/sections/Cta';
 import Services from '@/components/sections/Services';
 import Testimonials from '@/components/sections/Testimonials';
-import Cta from '@/components/sections/Cta';
-import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -10,10 +12,12 @@ export default function Home() {
       <section className="relative min-h-screen flex items-center justify-center pt-16">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="https://images.pexels.com/photos/6698513/pexels-photo-6698513.jpeg"
             alt=""
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
           />
           <div className="absolute inset-0 bg-black/40" />
         </div>
@@ -24,7 +28,7 @@ export default function Home() {
             Trouvez votre équilibre intérieur
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-            Le yoga n'est pas une simple pratique — c'est un voyage de reconnexion à votre essence véritable.
+            Le yoga n&apos;est pas une simple pratique — c&apos;est un voyage de reconnexion à votre essence véritable.
           </p>
           <Link
             href="/reservation"
