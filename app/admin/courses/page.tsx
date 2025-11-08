@@ -14,6 +14,7 @@ export default function CoursesPage() {
   const { data: courses, isLoading, error } = useQuery<Course[]>({
     queryKey: ['courses'],
     queryFn: fetchCourses,
+    retry: false, // Avoid retry loops in tests; show error state immediately
   });
 
   const deleteMutation = useMutation({
