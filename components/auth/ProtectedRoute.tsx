@@ -1,4 +1,6 @@
-import { useRouter } from 'next/router';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
