@@ -8,7 +8,10 @@ module.exports = {
   testMatch: ['**/?(*.)+(spec|test).ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts: 'ts-jest',
+  },
+  moduleNameMapper: {
+    '^@nestjs/testing: '<rootDir>/src/types/jest-nest-testing-stub.js',
   },
   collectCoverageFrom: [
     'src/**/*.{ts}',
