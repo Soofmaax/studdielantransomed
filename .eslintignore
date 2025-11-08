@@ -1,5 +1,4 @@
 # Ignore backend NestJS (linté dans un workflow séparé)
-src/
 
 # Generated and build artifacts
 .next/
