@@ -12,8 +12,8 @@ export class PrismaHealthIndicator extends HealthIndicator {
     try {
       await this.prismaService.$queryRaw`SELECT 1`;
       return this.getStatus(key, true);
-    } catch (e) {
-      return this.getStatus(key, false, { message: e.message });
+    } catch (e: any) {
+      return this.getStatus(key, false, { message: (e as Error).message });
     }
   }
 }

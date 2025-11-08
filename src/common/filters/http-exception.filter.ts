@@ -1,4 +1,3 @@
-```typescript
 import {
   ExceptionFilter,
   Catch,
@@ -31,4 +30,3 @@ export class HttpExceptionFilter implements ExceptionFilter {
     });
   }
 }
-```

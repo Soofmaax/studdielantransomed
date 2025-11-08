@@ -1,4 +1,3 @@
-```typescript
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoursesService } from './courses.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -60,4 +59,3 @@ describe('CoursesService', () => {
     });
   });
 });
-```
