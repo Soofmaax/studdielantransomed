@@ -1,11 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
+// Provide a minimal runtime stub for Nest imports used by AuthService
+jest.mock('@nestjs/common', () => ({
+  UnauthorizedException: class UnauthorizedException extends Error {
+    constructor(message?: string) {
+      super(message);
+      this.name = 'UnauthorizedException';
+    }
+  },
+}));
+jest.mock('@nestjs/jwt', () => ({
+  JwtService: class JwtService {},
+}));
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -19,21 +27,10 @@ describe('AuthService', () => {
   };
 
   beforeEach(async () => {
-    const testingModule: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        {
-          provide: UsersService,
-          useValue: mockUsersService,
-        },
-        {
-          provide: JwtService,
-          useValue: mockJwtService,
-        },
-      ],
-    }).compile();
-
-    service = testingModule.get<AuthService>(AuthService);
+    service = new AuthService(
+      mockUsersService as any,
+      mockJwtService as any,
+    );
   });
 
   describe('login', () => {
@@ -42,7 +39,7 @@ describe('AuthService', () => {
 
       await expect(
         service.login({ email: 'test@test.com', password: 'wrong' })
-      ).rejects.toThrow(UnauthorizedException);
+      ).rejects.toThrow('Invalid credentials');
     });
 
     it('should return access token for valid credentials', async () => {

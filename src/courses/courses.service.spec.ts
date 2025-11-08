@@ -1,12 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { CoursesService } from './courses.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { Level } from '@prisma/client';
 
+// Minimal runtime stub for Nest imports used by CoursesService
+jest.mock('@nestjs/common', () => ({
+  NotFoundException: class NotFoundException extends Error {
+    constructor(message?: string) {
+      super(message);
+      this.name = 'NotFoundException';
+    }
+  },
+}));
+
 describe('CoursesService', () => {
   let service: CoursesService;
-  let prisma: PrismaService;
 
   const mockPrismaService = {
     course: {
@@ -18,19 +25,8 @@ describe('CoursesService', () => {
     },
   };
 
-  beforeEach(async () => {
-    const testingModule: TestingModule = await Test.createTestingModule({
-      providers: [
-        CoursesService,
-        {
-          provide: PrismaService,
-          useValue: mockPrismaService,
-        },
-      ],
-    }).compile();
-
-    service = testingModule.get<CoursesService>(CoursesService);
-    prisma = testingModule.get<PrismaService>(PrismaService);
+  beforeEach(() => {
+    service = new CoursesService(mockPrismaService as any);
   });
 
   it('should be defined', () => {
@@ -53,7 +49,7 @@ describe('CoursesService', () => {
 
       const result = await service.create(courseDto);
       expect(result).toEqual(expectedCourse);
-      expect(prisma.course.create).toHaveBeenCalledWith({
+      expect(mockPrismaService.course.create).toHaveBeenCalledWith({
         data: courseDto,
       });
     });
