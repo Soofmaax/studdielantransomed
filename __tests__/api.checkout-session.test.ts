@@ -6,6 +6,29 @@ jest.mock('next-auth', () => ({
   }),
 }));
 
+// Mock Prisma client to avoid real DB and browser bundle issues
+jest.mock('@/lib/prisma', () => {
+  return {
+    __esModule: true,
+    default: {
+      course: {
+        findUnique: jest.fn(async () => ({
+          id: '11111111-1111-1111-1111-111111111111',
+          title: 'Yoga Vinyasa',
+          description: 'Cours dynamique',
+          price: { toNumber: () => 50 },
+          duration: 60,
+          capacity: 10,
+          level: 'ALL_LEVELS',
+        })),
+      },
+      booking: {
+        count: jest.fn(async () => 0),
+      },
+    },
+  };
+});
+
 // Ensure NextResponse.json works under Jest by providing a static Response.json
 if (!(global as any).Response?.json) {
   (global as any).Response.json = (body: any, init?: any) =>

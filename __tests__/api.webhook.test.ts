@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 /* Mock NextAuth to avoid heavy imports in Jest; webhook does not use it but keeps consistency */
 jest.mock('next-auth', () => ({
   getServerSession: async () => ({
@@ -39,15 +43,17 @@ describe('API /api/webhook (demo mode)', () => {
   });
 
   it('accepts demo webhook payloads when demo mode is enabled', async () => {
-    const req = makeRequest({
-      sessionId: `demo_${Date.now()}`,
-      // No metadata to avoid DB calls (Prisma) in demo test environment
-    });
+    const res = await WebhookPost(
+      makeRequest({
+        sessionId: `demo_${Date.now()}`,
+        // No metadata to avoid DB calls (Prisma) in demo test environment
+      }) as any
+    );
 
-    const res = await WebhookPost(req as any);
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const text = await res.text();
+    const json = JSON.parse(text);
     expect(json.received).toBe(true);
     expect(json.eventType).toMatch(/demo/);
   });
