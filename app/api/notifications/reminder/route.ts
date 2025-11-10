@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { withAdminAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { notifyBookingReminder } from '@/lib/notifications';
-
-const prisma = new PrismaClient();
+import db from '@/lib/prisma';
 
 export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
@@ -15,7 +13,7 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       throw ApiErrorHandler.badRequest('bookingId requis');
     }
 
-    const booking = await prisma.booking.findUnique({
+    const booking = await db.booking.findUnique({
       where: { id: bookingId },
       include: {
         course: { select: { title: true } },

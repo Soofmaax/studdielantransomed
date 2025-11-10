@@ -39,11 +39,12 @@ class SecurityHeadersService {
       // Sources par défaut : uniquement le domaine actuel
       "default-src 'self'",
       
-      // Scripts : domaine + nonce + domaines externes nécessaires
-      `script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://www.googletagmanager.com`,
+      // Scripts : domaine + nonce + strict-dynamic + domaines externes nécessaires (GA, Stripe)
+      // Retrait de 'unsafe-inline' et ajout de 'strict-dynamic' pour renforcer la sécurité
+      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://www.googletagmanager.com`,
       
-      // Styles : domaine + nonce + fonts Google
-      `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com`,
+      // Styles : garder 'unsafe-inline' pour compatibilité UI (peut être durci ultérieurement)
+      `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://fonts.googleapis.com`,
       
       // Images : domaine + data URLs + domaines externes optimisés
       "img-src 'self' data: blob: https://images.unsplash.com https://res.cloudinary.com",
@@ -176,7 +177,7 @@ class AuthenticationService {
 
     // Redirection des utilisateurs authentifiés depuis la page de login
     if (pathname === '/login' && token) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      return NextResponse.redirect(new URL('/admin', request.url));
     }
 
     return null;

@@ -51,7 +51,7 @@ export default function ServicesPage() {
                     src={service.image}
                     alt={service.title}
                     fill
-                    className="object-cover"
+                    className="object-cover pointer-events-none"
                   />
                 </div>
                 <div className="p-6">

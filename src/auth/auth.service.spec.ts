@@ -1,10 +1,12 @@
 import * as bcrypt from 'bcrypt';
 
 import { AuthService } from './auth.service';
+
 import type { UsersService } from '../users/users.service';
 import type { JwtService } from '@nestjs/jwt';
 
 jest.mock('bcrypt');
+
 // Provide a minimal runtime stub for Nest imports used by AuthService
 jest.mock(
   '@nestjs/common',
@@ -19,6 +21,7 @@ jest.mock(
   }),
   { virtual: true }
 );
+
 jest.mock(
   '@nestjs/jwt',
   () => ({

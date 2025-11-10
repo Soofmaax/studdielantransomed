@@ -25,9 +25,11 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
+    "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint:fix": "eslint --fix --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" \"WebVitalsMonitor.tsx\" --no-error-on-unmatched-pattern"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
