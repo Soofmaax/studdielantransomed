@@ -1,21 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 test.describe('Critical User Journeys', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test.afterAll(async () => {
-    await prisma.$disconnect();
-  });
-
   test('complete booking flow', async ({ page }) => {
-    // Navigate to reservation page
-    await page.click('text=Réserver');
-    await page.waitForURL('/reservation');
+    // Navigate to reservation page: use stable selector to avoid overlay intercept
+    const cta = page.locator('[data-testid="home-cta-reserver"], [data-testid="nav-reservation-link"]');
+    await cta.first().click();
+    await page.waitForURL(/.*\/reservation.*/);
     
     // Select a course
     await page.click('[data-testid="course-card-yoga-vinyasa"]');
@@ -25,7 +19,7 @@ test.describe('Critical User Journeys', () => {
       await page.fill('[name="email"]', 'client@example.com');
       await page.fill('[name="password"]', 'client123');
       await page.click('text=Se connecter');
-      await page.waitForURL('/reservation');
+      await page.waitForURL(/.*\/reservation.*/);
     }
     
     // Select date and time
@@ -34,10 +28,10 @@ test.describe('Critical User Journeys', () => {
     await page.click('[data-testid="time-slot-10:00"]');
     
     // Complete booking
-    await page.click('text=Procéder au paiement');
+    await page.click('[data-testid="proceed-to-payment"], text=Procéder au paiement');
     
     // Verify redirect to Stripe
-    await expect(page.url()).toContain('stripe.com');
+    await expect(page).toHaveURL(/stripe\.com/);
   });
 
   test('authentication and admin access', async ({ page }) => {
@@ -100,6 +94,5 @@ test.describe('Critical User Journeys', () => {
     
     // Navigate using mobile menu
     await page.click('text=Services');
-    await expect(page.url()).toContain('/services');
+    await expect(page).toHaveURL(/.*\/services.*/);
   });
-});

@@ -10,7 +10,7 @@ const About = () => {
               src="https://images.pexels.com/photos/8436461/pexels-photo-8436461.jpeg"
               alt="Studio de yoga"
               fill
-              className="object-cover rounded-lg"
+              className="object-cover rounded-lg pointer-events-none"
             />
           </div>
           <div>

@@ -215,6 +215,9 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: 1
       NEXT_PUBLIC_E2E: "1"
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: test_secret
 
     steps:
       - name: Checkout

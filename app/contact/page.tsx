@@ -13,6 +13,8 @@ export default function ContactPage() {
     message: ''
   });
 
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -35,6 +37,7 @@ export default function ContactPage() {
       });
       
       setFormData({ name: '', email: '', subject: '', message: '' });
+      setSuccessMessage('Message envoyé');
     } catch (error) {
       // ====================================================================
       // == CORRECTION FINALE ET DÉFINITIVE ==
@@ -49,6 +52,7 @@ export default function ContactPage() {
         description: 'Une erreur est survenue lors de l\'envoi du message',
         variant: 'destructive',
       });
+      setSuccessMessage('');
     }
   };
 
@@ -117,7 +121,7 @@ export default function ContactPage() {
                     required
                   >
                     <option value="">Sélectionnez un sujet</option>
-                    <option value="information">Demande d&apos;information</option>
+                    <option value="information">Demande d'information</option>
                     <option value="reservation">Réservation</option>
                     <option value="other">Autre</option>
                   </select>
@@ -140,6 +144,13 @@ export default function ContactPage() {
                 >
                   Envoyer
                 </button>
+
+                {/* Inline success message for E2E visibility */}
+                {successMessage && (
+                  <p className="mt-2 text-sage" data-testid="contact-success-message">
+                    {successMessage}
+                  </p>
+                )}
               </form>
             </div>
 

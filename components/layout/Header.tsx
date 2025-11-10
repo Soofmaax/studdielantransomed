@@ -44,7 +44,7 @@ const NAVIGATION_CONFIG: INavigationItem[] = [
  * Styles CSS-in-JS pour une maintenance centralisée
  */
 const headerStyles = {
-  base: 'fixed w-full z-50 transition-all duration-300',
+  base: 'fixed w-full z-[1000] transition-all duration-300',
   variants: {
     default: 'bg-cream/90 backdrop-blur-md shadow-sm',
     transparent: 'bg-transparent',
@@ -260,6 +260,7 @@ const Header: React.FC<IHeaderProps> = ({
             <Link
               href="/reservation"
               className={headerStyles.ctaButton}
+              data-testid="nav-reservation-link"
             >
               Réserver un cours
             </Link>
@@ -301,6 +302,7 @@ const Header: React.FC<IHeaderProps> = ({
                   href="/reservation"
                   className={cn(headerStyles.ctaButton, 'text-center')}
                   onClick={mobileMenu.close}
+                  data-testid="nav-reservation-link-mobile"
                 >
                   Réserver un cours
                 </Link>
