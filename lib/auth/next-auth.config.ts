@@ -4,10 +4,10 @@ import { compare } from 'bcrypt';
 import { AuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
-import prisma from '@/lib/prisma';
+import db from '@/lib/prisma';
 
 export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(db),
   session: {
     strategy: 'jwt',
   },
@@ -23,7 +23,7 @@ export const authOptions: AuthOptions = {
           throw new Error('Missing credentials');
         }
 
-        const user = await prisma.user.findUnique({
+        const user = await db.user.findUnique({
           where: { email: credentials.email }
         });
 
@@ -81,7 +81,7 @@ export const authOptions: AuthOptions = {
   events: {
     async signIn({ user }) {
       if (user.id) {
-        await prisma.user.update({
+        await db.user.update({
           where: { id: user.id },
           data: { lastLogin: new Date() },
         });

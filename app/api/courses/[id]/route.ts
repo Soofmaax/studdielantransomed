@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server';
 
-import prisma from '@/lib/prisma';
 import { withAdminAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { updateCourseSchema } from '@/lib/validations/course';
+import db from '@/lib/prisma';
 
 type Params = { params: { id: string } };
 
@@ -21,7 +21,7 @@ export const PUT = withAdminAuth(async (request: NextRequest, _auth, { params }:
     const body = await request.json();
     const data = updateCourseSchema.parse(body);
 
-    const course = await prisma.course.update({
+    const course = await db.course.update({
       where: { id },
       data,
     });
@@ -43,7 +43,7 @@ export const DELETE = withAdminAuth(async (request: NextRequest, _auth, { params
       throw ApiErrorHandler.badRequest('ID de cours requis');
     }
 
-    await prisma.course.delete({ where: { id } });
+    await db.course.delete({ where: { id } });
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

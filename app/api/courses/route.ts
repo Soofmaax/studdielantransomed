@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import prisma from '@/lib/prisma';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAdminAuth } from '@/lib/api/auth-middleware';
 import { createCourseSchema } from '@/lib/validations/course';
+import db from '@/lib/prisma';
 
 /**
  * GET /api/courses
@@ -11,7 +11,7 @@ import { createCourseSchema } from '@/lib/validations/course';
  */
 export async function GET(): Promise<NextResponse> {
   try {
-    const courses = await prisma.course.findMany({
+    const courses = await db.course.findMany({
       orderBy: { createdAt: 'desc' },
     });
 
@@ -30,7 +30,7 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
     const body = await request.json();
     const data = createCourseSchema.parse(body);
 
-    const course = await prisma.course.create({
+    const course = await db.course.create({
       data,
     });
 

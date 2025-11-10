@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-import prisma from '@/lib/prisma';
 import { withAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
+import db from '@/lib/prisma';
 
 // Stripe initialisation en mode "optionnel" pour permettre une démo sans clés
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
@@ -36,7 +36,7 @@ class CheckoutSessionService {
    * @returns Données du cours ou lance une erreur si introuvable
    */
   private static async getCourseData(courseId: string): Promise<ICourseData> {
-    const courseFromDb = await prisma.course.findUnique({
+    const courseFromDb = await db.course.findUnique({
       where: { id: courseId },
       select: {
         id: true,
@@ -63,7 +63,7 @@ class CheckoutSessionService {
    * Vérifie la disponibilité du cours à la date demandée
    */
   private static async checkAvailability(courseId: string, date: string): Promise<boolean> {
-    const bookingCount = await prisma.booking.count({
+    const bookingCount = await db.booking.count({
       where: {
         courseId,
         date: new Date(date),
@@ -73,7 +73,7 @@ class CheckoutSessionService {
       },
     });
 
-    const course = await prisma.course.findUnique({
+    const course = await db.course.findUnique({
       where: { id: courseId },
       select: { capacity: true },
     });

@@ -2,9 +2,9 @@ import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-import prisma from '@/lib/prisma';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { notifyBookingCreated } from '@/lib/notifications';
+import db from '@/lib/prisma';
 
 // Stripe initialisation optionnelle (permet un mode démo sans clés)
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
@@ -49,19 +49,19 @@ class StripeWebhookService {
     metadata: IValidatedSessionMetadata,
     session: { id: string; payment_intent?: string | null; amount_total?: number | null; currency?: string | null }
   ) {
-    const course = await prisma.course.findUnique({
+    const course = await db.course.findUnique({
       where: { id: metadata.courseId },
       select: { id: true, title: true, capacity: true },
     });
     if (!course) throw new Error(`Cours ${metadata.courseId} introuvable`);
 
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: metadata.userId },
       select: { id: true, email: true, name: true },
     });
     if (!user) throw new Error(`Utilisateur ${metadata.userId} introuvable`);
 
-    const existingBooking = await prisma.booking.findFirst({
+    const existingBooking = await db.booking.findFirst({
       where: {
         courseId: metadata.courseId,
         userId: metadata.userId,
@@ -74,7 +74,7 @@ class StripeWebhookService {
       return existingBooking;
     }
 
-    const booking = await prisma.$transaction(async (tx) => {
+    const booking = await db.$transaction(async (tx) => {
       const bookingCount = await tx.booking.count({
         where: {
           courseId: metadata.courseId,

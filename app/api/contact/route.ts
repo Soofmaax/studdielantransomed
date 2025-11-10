@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { ApiErrorHandler } from '@/lib/api/error-handler';
-import { contactFormSchema } from '@/lib/validations/contact';
 import { sendEmail, sendTelegramMessage } from '@/lib/notifications';
+import { contactFormSchema } from '@/lib/validations/contact';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {

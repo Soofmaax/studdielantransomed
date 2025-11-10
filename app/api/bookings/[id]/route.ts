@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import prisma from '@/lib/prisma';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAdminAuth } from '@/lib/api/auth-middleware';
 import { updateBookingSchema } from '@/lib/validations/booking';
+import db from '@/lib/prisma';
 
 type Params = { params: { id: string } };
 
@@ -18,7 +18,7 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
       throw ApiErrorHandler.badRequest('ID de réservation requis');
     }
 
-    const booking = await prisma.booking.findUnique({
+    const booking = await db.booking.findUnique({
       where: { id },
       include: {
         user: { select: { id: true, name: true, email: true } },
@@ -58,7 +58,7 @@ export const PUT = withAdminAuth(async (request: NextRequest, _auth, { params }:
       updateData.date = new Date(data.date);
     }
 
-    const booking = await prisma.booking.update({
+    const booking = await db.booking.update({
       where: { id },
       data: updateData,
     });
