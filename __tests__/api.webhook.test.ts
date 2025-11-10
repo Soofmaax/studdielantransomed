@@ -52,4 +52,3 @@ describe('API /api/webhook (demo mode)', () => {
     expect(json.eventType).toMatch(/demo/);
   });
 });
-});
