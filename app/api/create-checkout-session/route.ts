@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 
 import { withAuth } from '@/lib/api/auth-middleware';
@@ -196,16 +196,17 @@ class CheckoutSessionService {
 async function handleCreateCheckoutSession(
   request: NextRequest,
   auth: { user: { id: string } }
-): Promise<NextResponse> {
+): Promise<Response> {
   try {
     // Best-effort rate limiting: 60 req / 10 min / IP
     const rl = rateLimit(request, { windowMs: 10 * 60 * 1000, max: 60, keyPrefix: 'checkout' });
     if (rl.blocked) {
-      const headers = new Headers(rl.headers);
-      return NextResponse.json(
-        { type: 'RATE_LIMIT_ERROR', message: 'Trop de requêtes' },
-        { status: 429, headers }
-      );
+      const headers = new Headers({ 'content-type': 'application/json' });
+      Object.entries(rl.headers).forEach(([k, v]) => headers.set(k, v));
+      return new Response(JSON.stringify({ type: 'RATE_LIMIT_ERROR', message: 'Trop de requêtes' }), {
+        status: 429,
+        headers,
+      });
     }
 
     // Strict JSON parsing and validation
@@ -214,17 +215,17 @@ async function handleCreateCheckoutSession(
 
     const result = await CheckoutSessionService.createSession(validatedData, auth.user.id);
 
-    const response = NextResponse.json(
-      {
+    const headers = new Headers({ 'content-type': 'application/json' });
+    Object.entries(rl.headers).forEach(([k, v]) => headers.set(k, v));
+
+    return new Response(
+      JSON.stringify({
         success: true,
         data: result,
         message: STRIPE_DEMO_MODE ? 'Mode démo: session simulée' : 'Session de paiement créée avec succès',
-      },
-      { status: 201 }
+      }),
+      { status: 201, headers }
     );
-
-    Object.entries(rl.headers).forEach(([k, v]) => response.headers.set(k, v));
-    return response;
   } catch (error) {
     return ApiErrorHandler.handle(error);
   }
