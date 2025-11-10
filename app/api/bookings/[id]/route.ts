@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAdminAuth } from '@/lib/api/auth-middleware';
-import { updateBookingSchema } from '@/lib/validations/booking';
+import { ApiErrorHandler } from '@/lib/api/error-handler';
 import db from '@/lib/prisma';
+import { updateBookingSchema } from '@/lib/validations/booking';
 
 type Params = { params: { id: string } };
 

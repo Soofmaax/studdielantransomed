@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAdminAuth } from '@/lib/api/auth-middleware';
-import { createCourseSchema } from '@/lib/validations/course';
+import { ApiErrorHandler } from '@/lib/api/error-handler';
 import db from '@/lib/prisma';
+import { createCourseSchema } from '@/lib/validations/course';
 
 /**
  * GET /api/courses

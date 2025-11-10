@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { withAuth } from '@/lib/api/auth-middleware';
-import { createBookingSchema } from '@/lib/validations/booking';
+import { ApiErrorHandler } from '@/lib/api/error-handler';
 import db from '@/lib/prisma';
+import { createBookingSchema } from '@/lib/validations/booking';
 
 /**
  * GET /api/bookings

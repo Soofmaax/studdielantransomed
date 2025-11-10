@@ -3,8 +3,8 @@ import Stripe from 'stripe';
 
 import { withAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
-import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 import db from '@/lib/prisma';
+import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 
 // Stripe initialisation en mode "optionnel" pour permettre une démo sans clés
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
