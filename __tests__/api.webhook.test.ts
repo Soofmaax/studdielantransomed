@@ -10,25 +10,28 @@ jest.mock('next-auth', () => ({
   }),
 }));
 
-// Ensure NextResponse.json works under Jest by providing a static Response.json
-if (!(global as any).Response?.json) {
-  (global as any).Response.json = (body: any, init?: any) =>
-    new (global as any).Response(JSON.stringify(body), {
-      ...(init || {}),
-      headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
-    });
-}
-
+import type { NextRequest } from 'next/server';
 import { POST as WebhookPost } from '@/app/api/webhook/route';
 
-function makeRequest(body: any) {
+type WebhookDemoPayload = {
+  sessionId: string;
+};
+
+type RequestLike = {
+  headers: Headers;
+  text: () => Promise<string>;
+  json: () => Promise<unknown>;
+  nextUrl: URL;
+};
+
+function makeRequest(body: WebhookDemoPayload): RequestLike {
   const url = 'http://localhost/api/webhook';
   return {
     headers: new Headers({ 'content-type': 'application/json' }),
     text: async () => JSON.stringify(body),
     json: async () => body,
     nextUrl: new URL(url),
-  } as any;
+  };
 }
 
 describe('API /api/webhook (demo mode)', () => {
@@ -43,17 +46,12 @@ describe('API /api/webhook (demo mode)', () => {
   });
 
   it('accepts demo webhook payloads when demo mode is enabled', async () => {
-    const res = await WebhookPost(
-      makeRequest({
-        sessionId: `demo_${Date.now()}`,
-        // No metadata to avoid DB calls (Prisma) in demo test environment
-      }) as any
-    );
+    const res = await WebhookPost(makeRequest({ sessionId: `demo_${Date.now()}` }) as unknown as NextRequest);
 
     expect(res.status).toBe(200);
 
     const text = await res.text();
-    const json = JSON.parse(text);
+    const json = JSON.parse(text) as { received: boolean; eventType: string };
     expect(json.received).toBe(true);
     expect(json.eventType).toMatch(/demo/);
   });

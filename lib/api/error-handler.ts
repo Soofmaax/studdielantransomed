@@ -86,20 +86,17 @@ export class ApiErrorHandler {
       );
     }
 
-    // Erreur Prisma (base de données)
-    // Guard against environments where Prisma class prototype is not available
-    // to avoid instanceof throwing due to undefined prototype.
-    if (
-      typeof (Prisma as any)?.PrismaClientKnownRequestError === 'function' &&
-      error instanceof (Prisma as any).PrismaClientKnownRequestError
-    ) {
-      switch ((error as any).code) {
+    // Erreur Prisma (base de données) sans utiliser instanceof,
+    // car certains environnements de test n'exposent pas le prototype correctement.
+    if (error && typeof error === 'object') {
+      const prismaErr = error as { code?: string; meta?: { target?: unknown } };
+      switch (prismaErr.code) {
         case 'P2002':
           return NextResponse.json(
             {
               type: ErrorType.CONFLICT,
               message: 'Cette ressource existe déjà',
-              details: { field: (error as any).meta?.target },
+              details: { field: prismaErr.meta?.target },
             },
             { status: 409 }
           );
@@ -110,14 +107,6 @@ export class ApiErrorHandler {
               message: 'Ressource introuvable',
             },
             { status: 404 }
-          );
-        default:
-          return NextResponse.json(
-            {
-              type: ErrorType.INTERNAL,
-              message: 'Erreur de base de données',
-            },
-            { status: 500 }
           );
       }
     }

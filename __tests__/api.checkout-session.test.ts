@@ -30,25 +30,28 @@ jest.mock('@/lib/prisma', () => {
 });
 
 // Ensure NextResponse.json works under Jest by providing a static Response.json
-if (!(global as any).Response?.json) {
-  (global as any).Response.json = (body: any, init?: any) =>
-    new (global as any).Response(JSON.stringify(body), {
-      ...(init || {}),
-      headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
-    });
-}
 
+
+import type { NextRequest } from 'next/server';
+import type { ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 import { POST as CheckoutPost } from '@/app/api/create-checkout-session/route';
 
 /* Build a minimal request-like object compatible with our route handler expectations */
-function makeRequest(body: any) {
+type RequestLike = {
+  headers: Headers;
+  text: () => Promise<string>;
+  json: () => Promise<unknown>;
+  nextUrl: URL;
+};
+
+function makeRequest(body: ICreateCheckoutSessionRequest): RequestLike {
   const url = 'http://localhost/api/create-checkout-session';
   return {
     headers: new Headers({ 'content-type': 'application/json', 'x-forwarded-for': '127.0.0.1' }),
     text: async () => JSON.stringify(body),
     json: async () => body,
     nextUrl: new URL(url),
-  } as any;
+  };
 }
 
 /**
