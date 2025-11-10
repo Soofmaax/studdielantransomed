@@ -1,15 +1,21 @@
-import { NextRequest } from 'next/server';
+/* Mock NextAuth to avoid heavy imports in Jest; webhook does not use it but keeps consistency */
+jest.mock('next-auth', () => ({
+  getServerSession: async () => ({
+    user: { id: 'user_demo', email: 'demo@example.com', name: 'Demo', role: 'CLIENT' },
+    expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+  }),
+}));
+
 import { POST as WebhookPost } from '@/app/api/webhook/route';
 
 function makeRequest(body: any) {
   const url = 'http://localhost/api/webhook';
-  const req = new Request(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  // @ts-ignore
-  return new NextRequest(req);
+  return {
+    headers: new Headers({ 'content-type': 'application/json' }),
+    text: async () => JSON.stringify(body),
+    json: async () => body,
+    nextUrl: new URL(url),
+  } as any;
 }
 
 describe('API /api/webhook (demo mode)', () => {

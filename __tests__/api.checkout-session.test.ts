@@ -1,19 +1,22 @@
-import { NextRequest } from 'next/server';
+/* Mock NextAuth to avoid importing openid-client in Jest environment */
+jest.mock('next-auth', () => ({
+  getServerSession: async () => ({
+    user: { id: 'user_demo', email: 'demo@example.com', name: 'Demo', role: 'CLIENT' },
+    expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+  }),
+}));
+
 import { POST as CheckoutPost } from '@/app/api/create-checkout-session/route';
 
-// Minimal auth wrapper for withAuth (the route exports POST = withAuth(handler))
-// We call the inner handler by simulating the auth, but since it's wrapped,
-// we'll pass through by constructing a request compatible with Next runtime.
-
+/* Build a minimal request-like object compatible with our route handler expectations */
 function makeRequest(body: any) {
   const url = 'http://localhost/api/create-checkout-session';
-  const req = new Request(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  // @ts-ignore - NextRequest accepts a Request in runtime
-  return new NextRequest(req);
+  return {
+    headers: new Headers({ 'content-type': 'application/json', 'x-forwarded-for': '127.0.0.1' }),
+    text: async () => JSON.stringify(body),
+    json: async () => body,
+    nextUrl: new URL(url),
+  } as any;
 }
 
 describe('API /api/create-checkout-session (demo mode)', () => {
