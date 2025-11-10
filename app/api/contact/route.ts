@@ -1,12 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { ApiErrorHandler } from '@/lib/api/error-handler';
+import { ApiErrorHandler, ErrorType } from '@/lib/api/error-handler';
 import { sendEmail, sendTelegramMessage } from '@/lib/notifications';
 import { contactFormSchema } from '@/lib/validations/contact';
+import { rateLimit } from '@/lib/rate-limit';
+import { parseJson } from '@/lib/security';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json();
+    // Best-effort rate limiting: 10 req / 10 min / IP
+    const rl = rateLimit(request, { windowMs: 10 * 60 * 1000, max: 10, keyPrefix: 'contact' });
+    if (rl.blocked) {
+      const headers = new Headers(rl.headers);
+      return NextResponse.json(
+        { type: ErrorType.RATE_LIMIT, message: 'Trop de requêtes' },
+        { status: 429, headers }
+      );
+    }
+
+    // Strict JSON parsing with content-type enforcement and size bound
+    const body = await parseJson(request, 20_000);
     const data = contactFormSchema.parse(body);
 
     // Notify via Telegram (if configured) and send email
@@ -32,7 +45,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       `,
     });
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         message: 'Message envoyé',
@@ -40,6 +53,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
       { status: 200 }
     );
+
+    // Attach rate limit headers for transparency
+    Object.entries(rl.headers).forEach(([k, v]) => response.headers.set(k, v));
+
+    return response;
   } catch (error) {
     return ApiErrorHandler.handle(error);
   }

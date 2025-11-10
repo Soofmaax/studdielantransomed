@@ -100,6 +100,7 @@ npm run dev
 | `STRIPE_SECRET_KEY` | Clé secrète Stripe | `sk_test_...` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Clé publique Stripe | `pk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Secret webhook Stripe | `whsec_...` |
+| `STRIPE_DEMO_MODE` | Mode démo Stripe (par défaut: `1`). Mettre `0` pour passer en live avec vos clés. | `1` ou `0` |
 | `NEXT_PUBLIC_SENTRY_DSN` | DSN Sentry (optionnel) | `https://...@sentry.io/...` |
 | `NEXT_PUBLIC_E2E` | Active les contrôles de test e2e dans la page Réservation | `1` ou `0` |
 
@@ -224,6 +225,19 @@ studio-elan/
 
 ## 🚀 Déploiement
 
+### Mode démo Stripe vs mode live
+
+Le dépôt est prêt pour un usage “showcase” sans clés Stripe:
+- STRIPE_DEMO_MODE=1 (défaut) — génère des URLs Stripe simulées et accepte des webhooks de démo
+- Aucun secret nécessaire; les routes existantes fonctionnent sans modification
+
+Pour basculer en mode “live”:
+1. Définir STRIPE_DEMO_MODE=0
+2. Renseigner STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET (et NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY côté client)
+3. Redéployer — les mêmes routes fonctionneront avec Stripe réel (aucune recréation de route)
+
+Note: En production, STRIPE_DEMO_MODE=1 permet la démo sans clés; passez à 0 pour exiger la signature Stripe.
+
 ### Vercel (Recommandé)
 ```bash
 # Installation Vercel CLI
@@ -237,7 +251,7 @@ vercel --prod
 Configurer dans l'interface Vercel :
 - Toutes les variables de `.env.example`
 - `DATABASE_URL` pointant vers votre DB production
-- Clés Stripe de production
+- Clés Stripe de production (si STRIPE_DEMO_MODE=0)
 
 ---
 

@@ -4,6 +4,8 @@ import Stripe from 'stripe';
 import { withAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import db from '@/lib/prisma';
+import { rateLimit } from '@/lib/rate-limit';
+import { parseJson } from '@/lib/security';
 import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 
 // Stripe initialisation en mode "optionnel" pour permettre une démo sans clés
@@ -11,6 +13,10 @@ const stripeKey = process.env.STRIPE_SECRET_KEY || '';
 const stripe = stripeKey
   ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
   : null;
+
+// Mode démo Stripe (par défaut activé pour le showcase). 
+// Mettez STRIPE_DEMO_MODE=0 + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET pour passer en "live".
+const STRIPE_DEMO_MODE = (process.env.STRIPE_DEMO_MODE || '1') === '1';
 
 /**
  * Interface pour les données du cours récupérées de la base de données
@@ -170,9 +176,13 @@ class CheckoutSessionService {
     const course = await this.getCourseData(data.courseId);
     await this.checkAvailability(data.courseId, data.date);
 
-    // Si Stripe n'est pas configuré, on passe en mode démo
-    if (!stripe) {
+    // Mode démo forcé (showcase) si STRIPE_DEMO_MODE=1
+    if (STRIPE_DEMO_MODE) {
       return this.createDemoSession(data);
+    }
+
+    if (!stripe) {
+      throw new Error('Stripe non configuré (désactivez STRIPE_DEMO_MODE ou ajoutez vos clés)');
     }
 
     const session = await this.createStripeSession(data, course);
@@ -188,19 +198,33 @@ async function handleCreateCheckoutSession(
   auth: { user: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const body = await request.json();
-    const validatedData = createCheckoutSessionSchema.parse(body);
+    // Best-effort rate limiting: 60 req / 10 min / IP
+    const rl = rateLimit(request, { windowMs: 10 * 60 * 1000, max: 60, keyPrefix: 'checkout' });
+    if (rl.blocked) {
+      const headers = new Headers(rl.headers);
+      return NextResponse.json(
+        { type: 'RATE_LIMIT_ERROR', message: 'Trop de requêtes' },
+        { status: 429, headers }
+      );
+    }
+
+    // Strict JSON parsing and validation
+    const raw = await parseJson(request, 20_000);
+    const validatedData = createCheckoutSessionSchema.parse(raw);
 
     const result = await CheckoutSessionService.createSession(validatedData, auth.user.id);
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         data: result,
-        message: stripe ? 'Session de paiement créée avec succès' : 'Mode démo: session simulée',
+        message: STRIPE_DEMO_MODE ? 'Mode démo: session simulée' : 'Session de paiement créée avec succès',
       },
       { status: 201 }
     );
+
+    Object.entries(rl.headers).forEach(([k, v]) => response.headers.set(k, v));
+    return response;
   } catch (error) {
     return ApiErrorHandler.handle(error);
   }

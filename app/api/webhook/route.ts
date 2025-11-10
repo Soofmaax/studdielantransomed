@@ -12,6 +12,10 @@ const stripe = stripeKey
   ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
   : null;
 
+// Mode démo Stripe (par défaut activé pour le showcase).
+// Pour passer en "live": STRIPE_DEMO_MODE=0 + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET.
+const STRIPE_DEMO_MODE = (process.env.STRIPE_DEMO_MODE || '1') === '1';
+
 /**
  * Interface pour les métadonnées de session Stripe validées
  */
@@ -150,6 +154,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
     if (!stripe || !webhookSecret) {
+      if (!STRIPE_DEMO_MODE) {
+        throw ApiErrorHandler.forbidden('Webhook Stripe non configuré');
+      }
+
       // Mode démo: on s'attend à un JSON avec { metadata: {courseId,date,userId,bookingType}, sessionId }
       const body = await request.json().catch(() => ({}));
       const metadata = body?.metadata as Stripe.Metadata | null;

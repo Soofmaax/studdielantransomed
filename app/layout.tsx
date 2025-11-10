@@ -7,11 +7,14 @@ import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import { Providers } from '@/components/Providers';
 import { AuthProvider } from '@/lib/AuthProvider';
+import { initSentry } from '@/lib/sentry';
 
 import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
+
+initSentry();
 
 export const metadata: Metadata = {
   title: {
