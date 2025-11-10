@@ -39,10 +39,11 @@ class SecurityHeadersService {
       // Sources par défaut : uniquement le domaine actuel
       "default-src 'self'",
       
-      // Scripts : domaine + nonce + inline Next.js + domaines externes nécessaires (GA, Stripe)
-      `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com`,
+      // Scripts : domaine + nonce + strict-dynamic + domaines externes nécessaires (GA, Stripe)
+      // Retrait de 'unsafe-inline' et ajout de 'strict-dynamic' pour renforcer la sécurité
+      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://www.googletagmanager.com`,
       
-      // Styles : domaine + nonce + inline Next.js + fonts Google
+      // Styles : garder 'unsafe-inline' pour compatibilité UI (peut être durci ultérieurement)
       `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' https://fonts.googleapis.com`,
       
       // Images : domaine + data URLs + domaines externes optimisés

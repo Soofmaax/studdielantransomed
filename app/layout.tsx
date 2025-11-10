@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import { Providers } from '@/components/Providers';
 import { AuthProvider } from '@/lib/AuthProvider';
 import { initSentry } from '@/lib/sentry';
+import { headers } from 'next/headers';
 
 import type { Metadata } from 'next';
 
@@ -69,7 +70,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </Providers>
-        <Analytics />
+        <Analytics nonce={headers().get('x-nonce') ?? undefined} />
       </body>
     </html>
   );

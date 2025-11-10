@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 /**
  * Types d'erreurs standardisés pour une gestion cohérente
@@ -58,6 +59,17 @@ export class ApiErrorHandler {
       stack: error instanceof Error ? error.stack : undefined,
       timestamp: new Date().toISOString(),
     });
+
+    // Capture minimale Sentry (si initialisé) sans PII
+    try {
+      if (error instanceof Error) {
+        Sentry.captureException(error);
+      } else {
+        Sentry.captureMessage('Unknown API error');
+      }
+    } catch {
+      // ignore capture errors
+    }
 
     // Erreur de validation Zod
     if (error instanceof ZodError) {
