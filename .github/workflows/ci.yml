@@ -120,6 +120,9 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: ESLint auto-fix (backend)
+        run: npx eslint -c .eslintrc.backend.json "src/**/*.ts" --fix
+
       - name: Lint backend (NestJS)
         run: npx eslint -c .eslintrc.backend.json "src/**/*.ts"
 
