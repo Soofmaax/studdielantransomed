@@ -1,10 +1,19 @@
 /* Mock NextAuth to avoid importing openid-client in Jest environment */
 jest.mock('next-auth', () => ({
   getServerSession: async () => ({
-    user: { id: 'user_demo', email: 'demo@example.com', name: 'Demo', role: 'CLIENT' },
+    user: { id: '22222222-2222-2222-2222-222222222222', email: 'demo@example.com', name: 'Demo', role: 'CLIENT' },
     expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
   }),
 }));
+
+// Ensure NextResponse.json works under Jest by providing a static Response.json
+if (!(global as any).Response?.json) {
+  (global as any).Response.json = (body: any, init?: any) =>
+    new (global as any).Response(JSON.stringify(body), {
+      ...(init || {}),
+      headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
+    });
+}
 
 import { POST as CheckoutPost } from '@/app/api/create-checkout-session/route';
 
