@@ -1,6 +1,5 @@
 import { Inter, Playfair_Display } from 'next/font/google';
-
-import './globals.css';
+import { headers } from 'next/headers';
 
 import { Analytics } from '@/components/Analytics';
 import Footer from '@/components/layout/Footer';
@@ -8,7 +7,8 @@ import Header from '@/components/layout/Header';
 import { Providers } from '@/components/Providers';
 import { AuthProvider } from '@/lib/AuthProvider';
 import { initSentry } from '@/lib/sentry';
-import { headers } from 'next/headers';
+
+import './globals.css';
 
 import type { Metadata } from 'next';
 
