@@ -222,14 +222,14 @@ jobs:
           node-version: 18
           cache: npm
 
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+      - name: Install dependencies (clean)
+        run: npm ci
 
       - name: Run npm audit (fail on high)
         run: npm audit --audit-level=high || true
 
       - name: Generate CycloneDX SBOM
-        run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json --omit dev
+        run: npx @cyclonedx/cyclonedx-npm@latest --output-file sbom.json --omit dev
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
