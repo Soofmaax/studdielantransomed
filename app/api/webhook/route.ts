@@ -150,7 +150,7 @@ class StripeWebhookService {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const stripeSignature = headers().get('stripe-signature');
+    const stripeSignature = request.headers.get('stripe-signature');
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
     if (!stripe || !webhookSecret) {

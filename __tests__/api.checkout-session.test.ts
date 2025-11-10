@@ -19,6 +19,10 @@ function makeRequest(body: any) {
   } as any;
 }
 
+/**
+ * @jest-environment node
+ */
+
 describe('API /api/create-checkout-session (demo mode)', () => {
   const OLD_DEMO = process.env.STRIPE_DEMO_MODE;
 
@@ -31,10 +35,11 @@ describe('API /api/create-checkout-session (demo mode)', () => {
   });
 
   it('returns a simulated Stripe URL in demo mode', async () => {
+    const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
     const req = makeRequest({
-      courseId: 'course_demo',
-      date: new Date().toISOString(),
-      userId: 'user_demo',
+      courseId: '11111111-1111-1111-1111-111111111111',
+      date: future,
+      userId: '22222222-2222-2222-2222-222222222222',
     });
 
     const res = await CheckoutPost(req as any);

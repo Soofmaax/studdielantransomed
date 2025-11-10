@@ -87,14 +87,19 @@ export class ApiErrorHandler {
     }
 
     // Erreur Prisma (base de données)
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
+    // Guard against environments where Prisma class prototype is not available
+    // to avoid instanceof throwing due to undefined prototype.
+    if (
+      typeof (Prisma as any)?.PrismaClientKnownRequestError === 'function' &&
+      error instanceof (Prisma as any).PrismaClientKnownRequestError
+    ) {
+      switch ((error as any).code) {
         case 'P2002':
           return NextResponse.json(
             {
               type: ErrorType.CONFLICT,
               message: 'Cette ressource existe déjà',
-              details: { field: error.meta?.target },
+              details: { field: (error as any).meta?.target },
             },
             { status: 409 }
           );
