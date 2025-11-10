@@ -77,7 +77,8 @@ describe('API /api/create-checkout-session (demo mode)', () => {
     const res = await CheckoutPost(req as any);
     expect(res.status).toBe(201);
 
-    const json = await res.json();
+    const text = await res.text();
+    const json = JSON.parse(text);
     expect(json.success).toBe(true);
     expect(json.data.url).toMatch(/https:\/\/checkout\.stripe\.com\/pay\/demo_/);
   });
