@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Users, Book, BarChart, LogOut, Shield } from 'lucide-react'; // Icônes de Lucide
+import { Home, Users, Book, BarChart, LogOut, Shield, FileText } from 'lucide-react'; // Icônes de Lucide
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
@@ -15,6 +15,7 @@ const ADMIN_NAVIGATION_CONFIG = [
   { id: 'dashboard', label: 'Tableau de bord', href: '/admin', icon: Home },
   { id: 'users', label: 'Utilisateurs', href: '/admin/users', icon: Users },
   { id: 'courses', label: 'Cours', href: '/admin/courses', icon: Book },
+  { id: 'content', label: 'Contenu du site', href: '/admin/content', icon: FileText },
   { id: 'stats', label: 'Statistiques', href: '/admin/stats', icon: BarChart },
 ] as const;
 
