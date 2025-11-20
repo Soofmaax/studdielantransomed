@@ -1,10 +1,10 @@
-import { PrismaClient } from '@prisma/client';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 import { ApiErrorHandler } from '@/lib/api/error-handler';
 import { notifyBookingCreated } from '@/lib/notifications';
+import db from '@/lib/prisma';
 
 // Stripe initialisation optionnelle (permet un mode démo sans clés)
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
@@ -12,7 +12,9 @@ const stripe = stripeKey
   ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
   : null;
 
-const prisma = new PrismaClient();
+// Mode démo Stripe (par défaut activé pour le showcase).
+// Pour passer en "live": STRIPE_DEMO_MODE=0 + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET.
+const STRIPE_DEMO_MODE = (process.env.STRIPE_DEMO_MODE || '1') === '1';
 
 /**
  * Interface pour les métadonnées de session Stripe validées
@@ -51,19 +53,19 @@ class StripeWebhookService {
     metadata: IValidatedSessionMetadata,
     session: { id: string; payment_intent?: string | null; amount_total?: number | null; currency?: string | null }
   ) {
-    const course = await prisma.course.findUnique({
+    const course = await db.course.findUnique({
       where: { id: metadata.courseId },
       select: { id: true, title: true, capacity: true },
     });
     if (!course) throw new Error(`Cours ${metadata.courseId} introuvable`);
 
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: metadata.userId },
       select: { id: true, email: true, name: true },
     });
     if (!user) throw new Error(`Utilisateur ${metadata.userId} introuvable`);
 
-    const existingBooking = await prisma.booking.findFirst({
+    const existingBooking = await db.booking.findFirst({
       where: {
         courseId: metadata.courseId,
         userId: metadata.userId,
@@ -76,7 +78,7 @@ class StripeWebhookService {
       return existingBooking;
     }
 
-    const booking = await prisma.$transaction(async (tx) => {
+    const booking = await db.$transaction(async (tx) => {
       const bookingCount = await tx.booking.count({
         where: {
           courseId: metadata.courseId,
@@ -148,10 +150,14 @@ class StripeWebhookService {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const stripeSignature = headers().get('stripe-signature');
+    const stripeSignature = request.headers.get('stripe-signature');
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
     if (!stripe || !webhookSecret) {
+      if (!STRIPE_DEMO_MODE) {
+        throw ApiErrorHandler.forbidden('Webhook Stripe non configuré');
+      }
+
       // Mode démo: on s'attend à un JSON avec { metadata: {courseId,date,userId,bookingType}, sessionId }
       const body = await request.json().catch(() => ({}));
       const metadata = body?.metadata as Stripe.Metadata | null;

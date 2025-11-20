@@ -1,17 +1,21 @@
 import { Inter, Playfair_Display } from 'next/font/google';
-
-import './globals.css';
+import { headers } from 'next/headers';
 
 import { Analytics } from '@/components/Analytics';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import { Providers } from '@/components/Providers';
 import { AuthProvider } from '@/lib/AuthProvider';
+import { initSentry } from '@/lib/sentry';
+
+import './globals.css';
 
 import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
+
+initSentry();
 
 export const metadata: Metadata = {
   title: {
@@ -66,7 +70,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </Providers>
-        <Analytics />
+        <Analytics nonce={headers().get('x-nonce') ?? undefined} />
       </body>
     </html>
   );

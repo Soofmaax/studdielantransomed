@@ -105,27 +105,36 @@ export class AuthMiddleware {
    * @param sessionUser - Données utilisateur de la session
    * @returns Utilisateur validé et typé
    */
-  private static validateAndTransformUser(sessionUser: any): IAuthenticatedUser {
-    // Validation stricte des données utilisateur
-    if (!sessionUser.id || typeof sessionUser.id !== 'string') {
+  private static validateAndTransformUser(sessionUser: unknown): IAuthenticatedUser {
+    if (!sessionUser || typeof sessionUser !== 'object') {
+      throw new Error('Données utilisateur invalides');
+    }
+
+    const su = sessionUser as {
+      id?: unknown;
+      email?: unknown;
+      name?: unknown;
+      role?: unknown;
+    };
+
+    if (typeof su.id !== 'string' || su.id.length === 0) {
       throw new Error('ID utilisateur invalide');
     }
 
-    if (!sessionUser.email || typeof sessionUser.email !== 'string') {
+    if (typeof su.email !== 'string' || su.email.length === 0) {
       throw new Error('Email utilisateur invalide');
     }
 
-    if (!sessionUser.role || !['ADMIN', 'CLIENT'].includes(sessionUser.role)) {
+    if (su.role !== 'ADMIN' && su.role !== 'CLIENT') {
       throw new Error('Rôle utilisateur invalide');
     }
 
     return {
-      id: sessionUser.id,
-      email: sessionUser.email,
-      name: sessionUser.name || null,
-      role: sessionUser.role as 'ADMIN' | 'CLIENT',
-    };
-  }
+      id: su.id,
+      email: su.email,
+      name: typeof su.name === 'string' ? su.name : null,
+      role: su.role,
+    }
 }
 
 /**
@@ -133,7 +142,7 @@ export class AuthMiddleware {
  * @param handler - Handler de l'API route
  * @returns Handler sécurisé avec authentification
  */
-export function withAuth<T extends any[]>(
+export function withAuth<T extends unknown[]>(
   handler: (request: NextRequest, auth: IAuthResult, ...args: T) => Promise<Response>
 ) {
   return async (request: NextRequest, ...args: T): Promise<Response> => {
@@ -151,7 +160,7 @@ export function withAuth<T extends any[]>(
  * @param handler - Handler de l'API route
  * @returns Handler sécurisé avec vérification admin
  */
-export function withAdminAuth<T extends any[]>(
+export function withAdminAuth<T extends unknown[]>(
   handler: (request: NextRequest, auth: IAuthResult, ...args: T) => Promise<Response>
 ) {
   return async (request: NextRequest, ...args: T): Promise<Response> => {

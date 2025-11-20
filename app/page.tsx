@@ -16,10 +16,10 @@ export default function Home() {
             src="https://images.pexels.com/photos/6698513/pexels-photo-6698513.jpeg"
             alt=""
             fill
-            className="object-cover"
+            className="object-cover pointer-events-none"
             priority
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         </div>
 
         {/* Content */}
@@ -33,8 +33,9 @@ export default function Home() {
           <Link
             href="/reservation"
             className="inline-block bg-sage hover:bg-gold text-white px-8 py-4 rounded-full text-lg transition-colors duration-300"
+            data-testid="home-cta-reserver"
           >
-            Réserver une séance
+            Réserver
           </Link>
         </div>
       </section>

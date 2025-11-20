@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 /**
  * Types d'erreurs standardisés pour une gestion cohérente
@@ -59,6 +60,17 @@ export class ApiErrorHandler {
       timestamp: new Date().toISOString(),
     });
 
+    // Capture minimale Sentry (si initialisé) sans PII
+    try {
+      if (error instanceof Error) {
+        Sentry.captureException(error);
+      } else {
+        Sentry.captureMessage('Unknown API error');
+      }
+    } catch {
+      // ignore capture errors
+    }
+
     // Erreur de validation Zod
     if (error instanceof ZodError) {
       return NextResponse.json(
@@ -74,15 +86,17 @@ export class ApiErrorHandler {
       );
     }
 
-    // Erreur Prisma (base de données)
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
+    // Erreur Prisma (base de données) sans utiliser instanceof,
+    // car certains environnements de test n'exposent pas le prototype correctement.
+    if (error && typeof error === 'object') {
+      const prismaErr = error as { code?: string; meta?: { target?: unknown } };
+      switch (prismaErr.code) {
         case 'P2002':
           return NextResponse.json(
             {
               type: ErrorType.CONFLICT,
               message: 'Cette ressource existe déjà',
-              details: { field: error.meta?.target },
+              details: { field: prismaErr.meta?.target },
             },
             { status: 409 }
           );
@@ -93,14 +107,6 @@ export class ApiErrorHandler {
               message: 'Ressource introuvable',
             },
             { status: 404 }
-          );
-        default:
-          return NextResponse.json(
-            {
-              type: ErrorType.INTERNAL,
-              message: 'Erreur de base de données',
-            },
-            { status: 500 }
           );
       }
     }

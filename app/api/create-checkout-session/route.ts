@@ -1,9 +1,11 @@
-import { PrismaClient } from '@prisma/client';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 
 import { withAuth } from '@/lib/api/auth-middleware';
 import { ApiErrorHandler } from '@/lib/api/error-handler';
+import db from '@/lib/prisma';
+import { rateLimit } from '@/lib/rate-limit';
+import { parseJson } from '@/lib/security';
 import { createCheckoutSessionSchema, ICreateCheckoutSessionRequest } from '@/lib/validations/checkout';
 
 // Stripe initialisation en mode "optionnel" pour permettre une démo sans clés
@@ -12,7 +14,9 @@ const stripe = stripeKey
   ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
   : null;
 
-const prisma = new PrismaClient();
+// Mode démo Stripe (par défaut activé pour le showcase). 
+// Mettez STRIPE_DEMO_MODE=0 + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET pour passer en "live".
+const STRIPE_DEMO_MODE = (process.env.STRIPE_DEMO_MODE || '1') === '1';
 
 /**
  * Interface pour les données du cours récupérées de la base de données
@@ -38,7 +42,7 @@ class CheckoutSessionService {
    * @returns Données du cours ou lance une erreur si introuvable
    */
   private static async getCourseData(courseId: string): Promise<ICourseData> {
-    const courseFromDb = await prisma.course.findUnique({
+    const courseFromDb = await db.course.findUnique({
       where: { id: courseId },
       select: {
         id: true,
@@ -65,7 +69,7 @@ class CheckoutSessionService {
    * Vérifie la disponibilité du cours à la date demandée
    */
   private static async checkAvailability(courseId: string, date: string): Promise<boolean> {
-    const bookingCount = await prisma.booking.count({
+    const bookingCount = await db.booking.count({
       where: {
         courseId,
         date: new Date(date),
@@ -75,7 +79,7 @@ class CheckoutSessionService {
       },
     });
 
-    const course = await prisma.course.findUnique({
+    const course = await db.course.findUnique({
       where: { id: courseId },
       select: { capacity: true },
     });
@@ -148,17 +152,14 @@ class CheckoutSessionService {
 
   /**
    * Mode démo: renvoie une session factice sans Stripe
+   * Pour aligner les tests e2e, on renvoie une URL Stripe simulée.
    */
   private static async createDemoSession(
     data: ICreateCheckoutSessionRequest
   ): Promise<{ sessionId: string; url: string | null }> {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || '';
     const sessionId = `demo_${Date.now()}`;
-    const successUrl = baseUrl ? `${baseUrl}/reservation/success?session_id=${sessionId}&demo=1` : null;
-
-    // On peut marquer une réservation PENDING ici si souhaité, mais pour la démo
-    // on retourne simplement une URL de succès afin de simuler le flux.
-    return { sessionId, url: successUrl };
+    const simulatedStripeUrl = `https://checkout.stripe.com/pay/${sessionId}`;
+    return { sessionId, url: simulatedStripeUrl };
   }
 
   /**
@@ -175,9 +176,13 @@ class CheckoutSessionService {
     const course = await this.getCourseData(data.courseId);
     await this.checkAvailability(data.courseId, data.date);
 
-    // Si Stripe n'est pas configuré, on passe en mode démo
-    if (!stripe) {
+    // Mode démo forcé (showcase) si STRIPE_DEMO_MODE=1
+    if (STRIPE_DEMO_MODE) {
       return this.createDemoSession(data);
+    }
+
+    if (!stripe) {
+      throw new Error('Stripe non configuré (désactivez STRIPE_DEMO_MODE ou ajoutez vos clés)');
     }
 
     const session = await this.createStripeSession(data, course);
@@ -191,20 +196,35 @@ class CheckoutSessionService {
 async function handleCreateCheckoutSession(
   request: NextRequest,
   auth: { user: { id: string } }
-): Promise<NextResponse> {
+): Promise<Response> {
   try {
-    const body = await request.json();
-    const validatedData = createCheckoutSessionSchema.parse(body);
+    // Best-effort rate limiting: 60 req / 10 min / IP
+    const rl = rateLimit(request, { windowMs: 10 * 60 * 1000, max: 60, keyPrefix: 'checkout' });
+    if (rl.blocked) {
+      const headers = new Headers({ 'content-type': 'application/json' });
+      Object.entries(rl.headers).forEach(([k, v]) => headers.set(k, v));
+      return new Response(JSON.stringify({ type: 'RATE_LIMIT_ERROR', message: 'Trop de requêtes' }), {
+        status: 429,
+        headers,
+      });
+    }
+
+    // Strict JSON parsing and validation
+    const raw = await parseJson(request, 20_000);
+    const validatedData = createCheckoutSessionSchema.parse(raw);
 
     const result = await CheckoutSessionService.createSession(validatedData, auth.user.id);
 
-    return NextResponse.json(
-      {
+    const headers = new Headers({ 'content-type': 'application/json' });
+    Object.entries(rl.headers).forEach(([k, v]) => headers.set(k, v));
+
+    return new Response(
+      JSON.stringify({
         success: true,
         data: result,
-        message: stripe ? 'Session de paiement créée avec succès' : 'Mode démo: session simulée',
-      },
-      { status: 201 }
+        message: STRIPE_DEMO_MODE ? 'Mode démo: session simulée' : 'Session de paiement créée avec succès',
+      }),
+      { status: 201, headers }
     );
   } catch (error) {
     return ApiErrorHandler.handle(error);

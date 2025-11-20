@@ -37,7 +37,7 @@ const Testimonials = () => {
                     src={testimonial.image}
                     alt={testimonial.name}
                     fill
-                    className="rounded-full object-cover"
+                    className="rounded-full object-cover pointer-events-none"
                     sizes="48px"
                   />
                 </div>
