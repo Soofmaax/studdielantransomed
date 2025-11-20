@@ -7,11 +7,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --max-warnings=0 --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" \"WebVitalsMonitor.tsx\" --no-error-on-unmatched-pattern",
+    "lint": "eslint --max-warnings=0 --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" --no-error-on-unmatched-pattern",
     "lint:next": "next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:front": "prettier --write \"{app,components,hooks,lib,__tests__,types}/**/*.{ts,tsx,js,jsx,css,md}\" WebVitalsMonitor.tsx",
+    "format:front": "prettier --write \"{app,components,hooks,lib,__tests__,types}/**/*.{ts,tsx,js,jsx,css,md}\"",
     "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -29,7 +29,7 @@
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "prepare": "husky install",
-    "lint:fix": "eslint --fix --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" \"WebVitalsMonitor.tsx\" --no-error-on-unmatched-pattern"
+    "lint:fix": "eslint --fix --ignore-pattern \"src/**\" \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"hooks/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"__tests__/**/*.{ts,tsx}\" \"types/**/*.{ts,tsx}\" --no-error-on-unmatched-pattern"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
