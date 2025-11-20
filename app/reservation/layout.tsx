@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
-
 import { BUSINESS_CONFIG } from '@/lib/content/business-config';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: BUSINESS_CONFIG.seo.pages.reservation.title,

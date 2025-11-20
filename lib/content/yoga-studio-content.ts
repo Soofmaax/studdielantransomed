@@ -77,7 +77,7 @@ export const YOGA_COURSES_PAGE_CONFIG: YogaCoursesPageConfig = {
       id: 'meditation',
       title: 'Méditation guidée',
       description:
-        \"Un moment de pause pour apaiser le mental, réduire le stress et développer une attention plus présente au quotidien. Accessible même sans expérience de yoga.\",
+        'Un moment de pause pour apaiser le mental, réduire le stress et développer une attention plus présente au quotidien. Accessible même sans expérience de yoga.',
       duration: '45 min',
       price: '18€',
       level: 'Tous niveaux',

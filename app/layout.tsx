@@ -2,9 +2,9 @@ import { Inter, Playfair_Display } from 'next/font/google';
 import { headers } from 'next/headers';
 
 import { Analytics } from '@/components/Analytics';
+import { Providers } from '@/components/Providers';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
-import { Providers } from '@/components/Providers';
 import { AuthProvider } from '@/lib/AuthProvider';
 import { BUSINESS_CONFIG } from '@/lib/content/business-config';
 import { getLocalBusinessJsonLd } from '@/lib/seo/local-business-jsonld';

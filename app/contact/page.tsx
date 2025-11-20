@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
-
 import ContactForm from '@/components/contact/ContactForm';
 import { BUSINESS_CONFIG } from '@/lib/content/business-config';
 import { getContactPageContent } from '@/lib/content/server';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: BUSINESS_CONFIG.seo.pages.contact.title,

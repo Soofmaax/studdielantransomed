@@ -1,9 +1,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { Metadata } from 'next';
 
 import { BUSINESS_CONFIG } from '@/lib/content/business-config';
 import { YOGA_COURSES_PAGE_CONFIG } from '@/lib/content/yoga-studio-content';
+
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: BUSINESS_CONFIG.seo.pages.courses.title,
