@@ -1,6 +1,13 @@
 import Image from 'next/image';
+import type { Metadata } from 'next';
 
+import { BUSINESS_CONFIG } from '@/lib/content/business-config';
 import { getAboutPageContent } from '@/lib/content/server';
+
+export const metadata: Metadata = {
+  title: BUSINESS_CONFIG.seo.pages.about.title,
+  description: BUSINESS_CONFIG.seo.pages.about.description,
+};
 
 export default async function AboutPage() {
   const content = await getAboutPageContent();

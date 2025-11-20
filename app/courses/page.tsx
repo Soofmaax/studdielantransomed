@@ -2,11 +2,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
+import { BUSINESS_CONFIG } from '@/lib/content/business-config';
 import { YOGA_COURSES_PAGE_CONFIG } from '@/lib/content/yoga-studio-content';
 
 export const metadata: Metadata = {
-  title: YOGA_COURSES_PAGE_CONFIG.seo.title,
-  description: YOGA_COURSES_PAGE_CONFIG.seo.description,
+  title: BUSINESS_CONFIG.seo.pages.courses.title,
+  description: BUSINESS_CONFIG.seo.pages.courses.description,
 };
 
 export default function CoursesPage() {

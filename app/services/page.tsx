@@ -1,7 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
+import { BUSINESS_CONFIG } from '@/lib/content/business-config';
 import { getServicesPageContent } from '@/lib/content/server';
+
+export const metadata: Metadata = {
+  title: BUSINESS_CONFIG.seo.pages.services.title,
+  description: BUSINESS_CONFIG.seo.pages.services.description,
+};
 
 export default async function ServicesPage() {
   const content = await getServicesPageContent();
