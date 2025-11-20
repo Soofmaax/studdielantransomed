@@ -1,12 +1,19 @@
 /**
- * Composant Web Vitals Monitor - Version corrigée pour Netlify
- * Compatible avec les nouvelles API web-vitals
+ * Composant Web Vitals Monitor - Approche artisanale
+ * Surveillance des performances et optimisations en temps réel
  */
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { onCLS, onFID, onFCP, onLCP, onTTFB, Metric } from 'web-vitals';
+import { useEffect, useCallback, useRef } from 'react';
+import { getCLS, getFID, getFCP, getLCP, getTTFB, Metric } from 'web-vitals';
+
+// Declare GA on window to satisfy TS when present
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 /**
  * Interface pour les métriques de performance
@@ -44,27 +51,30 @@ const PERFORMANCE_THRESHOLDS: IPerformanceThresholds = {
   ttfb: { good: 800, needsImprovement: 1800 },
 };
 
+type MetricKey = 'cls' | 'fid' | 'fcp' | 'lcp' | 'ttfb';
+
 /**
  * Service de monitoring des performances
  */
 class PerformanceMonitoringService {
-  private static metrics: Partial<IPerformanceMetrics> = {};
-  private static listeners: Array<(metrics: Partial<IPerformanceMetrics>) => void> = [];
+  // Ne stocke que les métriques numériques clés (pas les métadonnées)
+  private static metrics: Partial<Pick<IPerformanceMetrics, MetricKey>> = {};
+  private static listeners: Array<(metrics: Partial<Pick<IPerformanceMetrics, MetricKey>>) => void> = [];
 
-  /**
-   * Ajoute un listener pour les mises à jour de métriques
-   */
-  static addListener(callback: (metrics: Partial<IPerformanceMetrics>) => void) {
+/**
+ * Ajoute un listener pour les mises à jour de métriques
+ */
+  static addListener(callback: (metrics: Partial<Pick<IPerformanceMetrics, MetricKey>>) => void) {
     this.listeners.push(callback);
     return () => {
       this.listeners = this.listeners.filter(listener => listener !== callback);
     };
   }
 
-  /**
-   * Met à jour une métrique et notifie les listeners
-   */
-  static updateMetric(name: keyof IPerformanceMetrics, value: number) {
+/**
+ * Met à jour une métrique et notifie les listeners
+ */
+  static updateMetric(name: MetricKey, value: number) {
     this.metrics[name] = value;
     this.notifyListeners();
   }
@@ -95,13 +105,14 @@ class PerformanceMonitoringService {
     let totalScore = 0;
     let metricCount = 0;
 
-    Object.entries(metrics).forEach(([key, value]) => {
-      if (value !== null && key !== 'timestamp' && key !== 'url' && key !== 'userAgent') {
-        const score = this.getPerformanceScore(key as keyof IPerformanceThresholds, value);
+    (Object.entries(metrics) as Array<[MetricKey, number]>)
+      .forEach(([key, value]) => {
+        if (typeof value !== 'number') return;
+        const numericValue = Number(value);
+        const score = this.getPerformanceScore(key as keyof IPerformanceThresholds, numericValue);
         totalScore += score === 'good' ? 100 : score === 'needs-improvement' ? 50 : 0;
         metricCount++;
-      }
-    });
+      });
 
     return metricCount > 0 ? Math.round(totalScore / metricCount) : 0;
   }
@@ -114,7 +125,7 @@ class PerformanceMonitoringService {
     if (process.env.NODE_ENV === 'development') {
       console.info(`Web Vital ${metric.name}:`, {
         value: metric.value,
-        rating: this.getPerformanceScore(metric.name as keyof IPerformanceThresholds, metric.value),
+        rating: this.getPerformanceScore(metric.name as keyof IPerformanceThresholds, Number(metric.value)),
         delta: metric.delta,
         id: metric.id,
       });
@@ -127,7 +138,7 @@ class PerformanceMonitoringService {
         if (typeof window.gtag === 'function') {
           window.gtag('event', metric.name, {
             event_category: 'Web Vitals',
-            value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+            value: Math.round(metric.name === 'CLS' ? Number(metric.value) * 1000 : Number(metric.value)),
             event_label: metric.id,
             non_interaction: true,
           });
@@ -137,51 +148,91 @@ class PerformanceMonitoringService {
       }
     }
   }
+
+  /**
+   * Détecte les problèmes de performance et suggère des améliorations
+   */
+  static analyzePerformance(): string[] {
+    const suggestions: string[] = [];
+    const metrics = this.metrics;
+
+    // Analyse LCP (Largest Contentful Paint)
+    if (typeof metrics.lcp === 'number' && metrics.lcp > PERFORMANCE_THRESHOLDS.lcp.needsImprovement) {
+      suggestions.push('LCP élevé: Optimisez les images et réduisez le temps de réponse du serveur');
+    }
+
+    // Analyse FID (First Input Delay)
+    if (typeof metrics.fid === 'number' && metrics.fid > PERFORMANCE_THRESHOLDS.fid.needsImprovement) {
+      suggestions.push('FID élevé: Réduisez le JavaScript bloquant et optimisez les tâches longues');
+    }
+
+    // Analyse CLS (Cumulative Layout Shift)
+    if (typeof metrics.cls === 'number' && metrics.cls > PERFORMANCE_THRESHOLDS.cls.needsImprovement) {
+      suggestions.push('CLS élevé: Définissez les dimensions des images et évitez les insertions de contenu dynamique');
+    }
+
+    // Analyse FCP (First Contentful Paint)
+    if (typeof metrics.fcp === 'number' && metrics.fcp > PERFORMANCE_THRESHOLDS.fcp.needsImprovement) {
+      suggestions.push('FCP élevé: Optimisez les ressources critiques et utilisez le preloading');
+    }
+
+    // Analyse TTFB (Time to First Byte)
+    if (typeof metrics.ttfb === 'number' && metrics.ttfb > PERFORMANCE_THRESHOLDS.ttfb.needsImprovement) {
+      suggestions.push('TTFB élevé: Optimisez la performance du serveur et utilisez un CDN');
+    }
+
+    return suggestions;
+  }
 }
 
 /**
  * Hook pour surveiller les Web Vitals
  */
 export function useWebVitals() {
-  const metricsRef = useRef<Partial<IPerformanceMetrics>>({});
-  const [, forceUpdate] = useState({});
+  const initialMetrics: IPerformanceMetrics = {
+    cls: null,
+    fid: null,
+    fcp: null,
+    lcp: null,
+    ttfb: null,
+    timestamp: 0,
+    url: '',
+    userAgent: '',
+  };
+
+  const metricsRef = useRef<IPerformanceMetrics>(initialMetrics);
 
   const handleMetric = useCallback((metric: Metric) => {
+    const key = metric.name.toLowerCase() as MetricKey;
+
     // Mettre à jour les métriques locales
-    metricsRef.current[metric.name.toLowerCase() as keyof IPerformanceMetrics] = metric.value;
-    
+    metricsRef.current[key] = Number(metric.value);
+
     // Mettre à jour le service global
-    PerformanceMonitoringService.updateMetric(
-      metric.name.toLowerCase() as keyof IPerformanceMetrics,
-      metric.value
-    );
+    PerformanceMonitoringService.updateMetric(key, Number(metric.value));
 
     // Envoyer à l'analytics
     PerformanceMonitoringService.sendToAnalytics(metric);
-    
-    // Forcer la mise à jour du composant
-    forceUpdate({});
   }, []);
 
   useEffect(() => {
-    // Initialiser la surveillance des Web Vitals avec les nouvelles API
-    onCLS(handleMetric);
-    onFID(handleMetric);
-    onFCP(handleMetric);
-    onLCP(handleMetric);
-    onTTFB(handleMetric);
+    // Initialiser la surveillance des Web Vitals
+    getCLS(handleMetric);
+    getFID(handleMetric);
+    getFCP(handleMetric);
+    getLCP(handleMetric);
+    getTTFB(handleMetric);
 
     // Ajouter des métadonnées
-    if (typeof window !== 'undefined') {
-      metricsRef.current.timestamp = Date.now();
-      metricsRef.current.url = window.location.href;
-      metricsRef.current.userAgent = navigator.userAgent;
-    }
+    metricsRef.current.timestamp = Date.now();
+    metricsRef.current.url = window.location.href;
+    metricsRef.current.userAgent = navigator.userAgent;
   }, [handleMetric]);
 
   return {
     metrics: metricsRef.current,
     overallScore: PerformanceMonitoringService.getOverallScore(),
+    suggestions: PerformanceMonitoringService.analyzePerformance(),
   };
 }
 
@@ -189,7 +240,7 @@ export function useWebVitals() {
  * Composant de monitoring des Web Vitals (visible en développement uniquement)
  */
 export function WebVitalsMonitor() {
-  const { metrics, overallScore } = useWebVitals();
+  const { metrics, overallScore, suggestions } = useWebVitals();
 
   // Afficher uniquement en développement
   if (process.env.NODE_ENV !== 'development') {
@@ -213,9 +264,10 @@ export function WebVitalsMonitor() {
         {Object.entries(metrics).map(([key, value]) => {
           if (key === 'timestamp' || key === 'url' || key === 'userAgent' || value === null) return null;
           
+          const numericValue = Number(value);
           const score = PerformanceMonitoringService.getPerformanceScore(
             key as keyof IPerformanceThresholds,
-            value
+            numericValue
           );
           
           return (
@@ -223,7 +275,7 @@ export function WebVitalsMonitor() {
               <span className="text-gray-600 uppercase">{key}:</span>
               <div className="flex items-center space-x-2">
                 <span className="text-gray-900">
-                  {key === 'cls' ? value.toFixed(3) : Math.round(value)}
+                  {key === 'cls' ? numericValue.toFixed(3) : Math.round(numericValue)}
                   {key !== 'cls' && 'ms'}
                 </span>
                 <div className={`w-2 h-2 rounded-full ${
@@ -236,6 +288,19 @@ export function WebVitalsMonitor() {
           );
         })}
       </div>
+
+      {suggestions.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <h4 className="text-xs font-medium text-gray-900 mb-1">Suggestions:</h4>
+          <ul className="text-xs text-gray-600 space-y-1">
+            {suggestions.slice(0, 2).map((suggestion, index) => (
+              <li key={index} className="truncate" title={suggestion}>
+                • {suggestion}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
@@ -245,8 +310,6 @@ export function WebVitalsMonitor() {
  */
 export function ResourcePreloader() {
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
     // Précharger les fonts critiques
     const fontPreloads = [
       '/fonts/inter-var.woff2',
@@ -265,8 +328,8 @@ export function ResourcePreloader() {
 
     // Précharger les images critiques
     const criticalImages = [
-      '/images/hero/yoga-studio-main.jpg',
-      '/images/about/instructor-portrait.jpg',
+      '/images/hero/yoga-studio-main.webp',
+      '/images/about/instructor-portrait.webp',
     ];
 
     criticalImages.forEach(image => {
@@ -276,10 +339,23 @@ export function ResourcePreloader() {
       link.as = 'image';
       document.head.appendChild(link);
     });
+
+    // Préconnexion aux domaines externes
+    const externalDomains = [
+      'https://fonts.googleapis.com',
+      'https://fonts.gstatic.com',
+    ];
+
+    externalDomains.forEach(domain => {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = domain;
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    });
   }, []);
 
   return null;
 }
 
 export default WebVitalsMonitor;
-

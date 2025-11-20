@@ -1,32 +1,21 @@
 import Image from 'next/image';
 
-const Testimonials = () => {
-  const testimonials = [
-    {
-      name: "Sophie Martin",
-      role: "Élève depuis 2021",
-      content: "Studio Élan a transformé ma pratique du yoga. L'ambiance est apaisante et les professeurs sont exceptionnels.",
-      image: "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg"
-    },
-    {
-      name: "Thomas Dubois",
-      role: "Élève depuis 2022",
-      content: "J'ai découvert le yoga ici et je ne peux plus m'en passer. Les cours sont adaptés à tous les niveaux.",
-      image: "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg"
-    },
-    {
-      name: "Marie Laurent",
-      role: "Élève depuis 2020",
-      content: "Un véritable havre de paix dans Paris. Les cours de méditation ont changé ma vie quotidienne.",
-      image: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg"
-    }
-  ];
+import type { HomeTestimonialsSection } from '@/lib/content/defaults';
+import { DEFAULT_CONTENT } from '@/lib/content/defaults';
+
+interface TestimonialsProps {
+  content?: HomeTestimonialsSection;
+}
+
+const Testimonials = ({ content }: TestimonialsProps) => {
+  const section = content ?? DEFAULT_CONTENT.home_page.testimonialsSection;
+  const testimonials = section.testimonials;
 
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl md:text-4xl font-serif text-sage text-center mb-12">
-          Ce que disent nos élèves
+          {section.title}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (

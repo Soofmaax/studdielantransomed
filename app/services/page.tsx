@@ -1,30 +1,17 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
-export default function ServicesPage() {
-  const services = [
-    {
-      title: "Yoga Doux",
-      description: "Une pratique douce et accessible, parfaite pour les débutants ou pour une approche plus relaxante du yoga.",
-      duration: "60 min",
-      price: "25€",
-      image: "https://images.pexels.com/photos/8436589/pexels-photo-8436589.jpeg"
-    },
-    {
-      title: "Yoga Énergie",
-      description: "Un cours dynamique combinant postures fluides et respirations pour stimuler votre énergie vitale.",
-      duration: "75 min",
-      price: "28€",
-      image: "https://images.pexels.com/photos/6698513/pexels-photo-6698513.jpeg"
-    },
-    {
-      title: "Étirements & Relaxation",
-      description: "Séance focalisée sur les étirements profonds et la relaxation pour libérer les tensions.",
-      duration: "60 min",
-      price: "25€",
-      image: "https://images.pexels.com/photos/6698615/pexels-photo-6698615.jpeg"
-    }
-  ];
+import { BUSINESS_CONFIG } from '@/lib/content/business-config';
+import { getServicesPageContent } from '@/lib/content/server';
+
+export const metadata: Metadata = {
+  title: BUSINESS_CONFIG.seo.pages.services.title,
+  description: BUSINESS_CONFIG.seo.pages.services.description,
+};
+
+export default async function ServicesPage() {
+  const content = await getServicesPageContent();
 
   return (
     <div className="pt-24">
@@ -32,10 +19,10 @@ export default function ServicesPage() {
       <section className="bg-cream py-16">
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-5xl font-serif text-sage mb-8">
-            Nos Services
+            {content.hero.title}
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Découvrez notre sélection de cours adaptés à tous les niveaux et objectifs.
+            {content.hero.subtitle}
           </p>
         </div>
       </section>
@@ -44,11 +31,11 @@ export default function ServicesPage() {
       <section className="py-16">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {services.map((service, index) => (
+            {content.services.map((service, index) => (
               <div key={index} className="bg-white rounded-lg overflow-hidden shadow-lg">
                 <div className="relative h-64">
                   <Image
-                    src={service.image}
+                    src={service.imageUrl}
                     alt={service.title}
                     fill
                     className="object-cover pointer-events-none"
@@ -80,20 +67,16 @@ export default function ServicesPage() {
       <section className="py-16 bg-cream">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-serif text-sage mb-6">Informations Pratiques</h2>
+            <h2 className="text-3xl font-serif text-sage mb-6">
+              {content.additionalInfo.title}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div>
-                <h3 className="font-medium text-sage mb-2">Équipement Fourni</h3>
-                <p className="text-gray-600">Tapis, blocs, sangles disponibles sur place</p>
-              </div>
-              <div>
-                <h3 className="font-medium text-sage mb-2">Vestiaires</h3>
-                <p className="text-gray-600">Douches et casiers sécurisés</p>
-              </div>
-              <div>
-                <h3 className="font-medium text-sage mb-2">Réservation</h3>
-                <p className="text-gray-600">En ligne ou par téléphone</p>
-              </div>
+              {content.additionalInfo.items.map((item, index) => (
+                <div key={index}>
+                  <h3 className="font-medium text-sage mb-2">{item.title}</h3>
+                  <p className="text-gray-600">{item.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
