@@ -20,11 +20,17 @@ Please include:
 
 We follow responsible disclosure. We will acknowledge receipt within 72 hours and provide a remediation timeline.
 
+## Seed credentials & environments
+
+- Prisma seed scripts create convenience users (admin, and a client test user for e2e) in non-production environments.
+- In `NODE_ENV=production`, seed scripts refuse to run if the `SEED_*` environment variables are not set (for example `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_CLIENT_EMAIL`, `SEED_CLIENT_PASSWORD`).
+- The built-in default credentials are intended for local development only and MUST NOT be reused in production.
+
 ## Operational Security Notes
 
-- Stripe demo mode is enabled by default (see README). In demo mode, webhooks can be simulated without real secrets for showcase purposes. To require signed Stripe webhooks and real payments, set:
-  - `STRIPE_DEMO_MODE=0`
-  - Provide `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
+- Stripe demo mode is intended for local/demo environments only (see README). It is only honoured when `STRIPE_DEMO_MODE=1` and `NODE_ENV !== 'production'`. In demo mode, checkouts and webhooks are simulated and protected by `STRIPE_DEMO_WEBHOOK_SECRET`. For production, keep `STRIPE_DEMO_MODE=0` and configure:
+  - `STRIPE_SECRET_KEY`
+  - `STRIPE_WEBHOOK_SECRET`.
 
 - Rate limiting is implemented as best‑effort in‑memory for the showcase. For production, use a shared store (e.g., Redis/Upstash) or a WAF/CDN (Cloudflare) for global limits.
 

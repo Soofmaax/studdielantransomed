@@ -1,12 +1,11 @@
 import { z } from 'zod';
 
 export const createBookingSchema = z.object({
-  userId: z.string().min(1, 'userId requis'),
   courseId: z.string().min(1, 'courseId requis'),
   date: z.string().refine((val) => !Number.isNaN(Date.parse(val)), {
     message: 'date doit être une ISO date valide',
   }),
-});
+}).strict();
 
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
 

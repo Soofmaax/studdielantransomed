@@ -14,11 +14,21 @@ export interface RateLimitOptions {
 }
 
 function getClientIp(req: NextRequest): string {
-  const xfwd = req.headers.get('x-forwarded-for');
-  if (xfwd) {
-    const parts = xfwd.split(',').map(s => s.trim());
-    return parts[0] || 'unknown';
+  const trustProxy = process.env.RATE_LIMIT_TRUST_PROXY === '1';
+
+  // Environnements derrière un proxy de confiance (Vercel, Netlify, etc.)
+  // peuvent activer RATE_LIMIT_TRUST_PROXY=1 pour utiliser x-forwarded-for.
+  if (trustProxy) {
+    const xfwd = req.headers.get('x-forwarded-for');
+    if (xfwd) {
+      const parts = xfwd.split(',').map(s => s.trim());
+      if (parts[0]) return parts[0];
+    }
   }
+
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) return realIp;
+
   // NextRequest doesn't expose remote address; fallback to user-agent as weak key
   return req.headers.get('user-agent') || 'unknown';
 }

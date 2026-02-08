@@ -2,9 +2,11 @@ import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-import { ApiErrorHandler } from '@/lib/api/error-handler';
+import { ApiErrorHandler, ErrorType } from '@/lib/api/error-handler';
 import { notifyBookingCreated } from '@/lib/notifications';
 import db from '@/lib/prisma';
+import { rateLimit } from '@/lib/rate-limit';
+import { parseJson } from '@/lib/security';
 
 // Stripe initialisation optionnelle (permet un mode démo sans clés)
 const stripeKey = process.env.STRIPE_SECRET_KEY || '';
@@ -12,9 +14,9 @@ const stripe = stripeKey
   ? new Stripe(stripeKey, { apiVersion: '2023-10-16', typescript: true })
   : null;
 
-// Mode démo Stripe (par défaut activé pour le showcase).
+// Mode démo Stripe (par défaut activé pour le showcase), mais jamais en production.
 // Pour passer en "live": STRIPE_DEMO_MODE=0 + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET.
-const STRIPE_DEMO_MODE = (process.env.STRIPE_DEMO_MODE || '1') === '1';
+const STRIPE_DEMO_MODE = process.env.STRIPE_DEMO_MODE === '1' && process.env.NODE_ENV !== 'production';
 
 /**
  * Interface pour les métadonnées de session Stripe validées
@@ -153,31 +155,73 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const stripeSignature = request.headers.get('stripe-signature');
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
+    // Branche démo (Stripe non configuré ou secret manquant)
     if (!stripe || !webhookSecret) {
+      // Best-effort rate limiting: 30 req / 10 min / IP
+      const rl = rateLimit(request, { windowMs: 10 * 60 * 1000, max: 30, keyPrefix: 'webhook-demo' });
+      if (rl.blocked) {
+        const headers = new Headers(rl.headers);
+        return NextResponse.json(
+          { type: ErrorType.RATE_LIMIT, message: 'Trop de requêtes' },
+          { status: 429, headers }
+        );
+      }
+
       if (!STRIPE_DEMO_MODE) {
         throw ApiErrorHandler.forbidden('Webhook Stripe non configuré');
       }
 
+      const demoSecret = process.env.STRIPE_DEMO_WEBHOOK_SECRET;
+      if (!demoSecret) {
+        throw ApiErrorHandler.forbidden('Webhook Stripe non configuré');
+      }
+
+      const headerSecret = request.headers.get('x-demo-webhook-secret');
+      if (headerSecret !== demoSecret) {
+        throw ApiErrorHandler.forbidden('Accès interdit au webhook de démonstration');
+      }
+
       // Mode démo: on s'attend à un JSON avec { metadata: {courseId,date,userId,bookingType}, sessionId }
-      const body = await request.json().catch(() => ({}));
+      const body = await parseJson(request, 20_000).catch(() => ({} as any));
       const metadata = body?.metadata as Stripe.Metadata | null;
 
       // Façon simple de simuler la confirmation
       if (metadata) {
-        await StripeWebhookService['createConfirmedBooking'].call(StripeWebhookService, StripeWebhookService['validateSessionMetadata'](metadata), {
-          id: body.sessionId || `demo_${Date.now()}`,
-          payment_intent: null,
-          amount_total: null,
-          currency: 'eur',
-        });
-        return NextResponse.json({ received: true, eventType: 'demo.checkout.session.completed' }, { status: 200 });
+        await StripeWebhookService['createConfirmedBooking'].call(
+          StripeWebhookService,
+          StripeWebhookService['validateSessionMetadata'](metadata),
+          {
+            id: body.sessionId || `demo_${Date.now()}`,
+            payment_intent: null,
+            amount_total: null,
+            currency: 'eur',
+          }
+        );
+        const response = NextResponse.json(
+          { received: true, eventType: 'demo.checkout.session.completed' },
+          { status: 200 }
+        );
+        Object.entries(rl.headers).forEach(([k, v]) => response.headers.set(k, v));
+        return response;
       }
 
       // Sinon on ack sans action
-      return NextResponse.json({ received: true, eventType: 'demo' }, { status: 200 });
+      const response = NextResponse.json({ received: true, eventType: 'demo' }, { status: 200 });
+      Object.entries(rl.headers).forEach(([k, v]) => response.headers.set(k, v));
+      return response;
     }
 
     // Mode réel Stripe
+    // Best-effort rate limiting: 300 req / 10 min / IP
+    const rl = rateLimit(request, { windowMs: 10 * 60 * 1000, max: 300, keyPrefix: 'webhook-live' });
+    if (rl.blocked) {
+      const headers = new Headers(rl.headers);
+      return NextResponse.json(
+        { type: ErrorType.RATE_LIMIT, message: 'Trop de requêtes' },
+        { status: 429, headers }
+      );
+    }
+
     const rawBody = await request.text();
     if (!stripeSignature) {
       throw ApiErrorHandler.unauthorized('Signature Stripe manquante');
