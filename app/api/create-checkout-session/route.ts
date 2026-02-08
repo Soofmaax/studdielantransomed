@@ -16,7 +16,7 @@ const stripe = stripeKey
 
 // Mode démo Stripe (par défaut activé pour le showcase). 
 // Mettez STRIPE_DEMO_MODE=0 + STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET pour passer en "live".
-const STRIPE_DEMO_MODE = (process.env.STRIPE_DEMO_MODE || '1') === '1';
+const STRIPE_DEMO_MODE = process.env.STRIPE_DEMO_MODE === '1' && process.env.NODE_ENV !== 'production';
 
 /**
  * Interface pour les données du cours récupérées de la base de données

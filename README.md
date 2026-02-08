@@ -46,6 +46,12 @@ src/
 └── common/            # Utilitaires partagés
 ```
 
+### 🔐 Architecture d'authentification
+
+- Le frontend et les API Next.js (`app/api/**`) utilisent **NextAuth** avec des sessions JWT via `/api/auth/[...nextauth]`.
+- Le backend NestJS sous `src/**` expose ses propres endpoints protégés par des tokens **JWT Bearer** (`Authorization: Bearer <token>`).
+- `NEXT_PUBLIC_API_URL` doit pointer soit vers les routes API Next.js, soit vers le backend NestJS. Mélanger les deux dans le même client nécessite de bien comprendre quel mécanisme d'authentification est attendu de chaque côté.
+
 ### Base de Données
 - **PostgreSQL** avec **Prisma ORM**
 - Migrations versionnées
@@ -100,7 +106,7 @@ npm run dev
 | `STRIPE_SECRET_KEY` | Clé secrète Stripe | `sk_test_...` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Clé publique Stripe | `pk_test_...` |
 | `STRIPE_WEBHOOK_SECRET` | Secret webhook Stripe | `whsec_...` |
-| `STRIPE_DEMO_MODE` | Mode démo Stripe (par défaut: `1`). Mettre `0` pour passer en live avec vos clés. | `1` ou `0` |
+| `STRIPE_DEMO_MODE` | Mode démo Stripe (efficace uniquement quand `NODE_ENV !== 'production'`). Laisser `0` en production, mettre `1` uniquement pour les démos locales. | `0` (prod) / `1` (local) |
 | `NEXT_PUBLIC_SENTRY_DSN` | DSN Sentry (optionnel) | `https://...@sentry.io/...` |
 | `NEXT_PUBLIC_E2E` | Active les contrôles de test e2e dans la page Réservation | `1` ou `0` |
 
@@ -227,16 +233,16 @@ studio-elan/
 
 ### Mode démo Stripe vs mode live
 
-Le dépôt est prêt pour un usage “showcase” sans clés Stripe:
-- STRIPE_DEMO_MODE=1 (défaut) — génère des URLs Stripe simulées et accepte des webhooks de démo
-- Aucun secret nécessaire; les routes existantes fonctionnent sans modification
+Le dépôt supporte un mode “showcase” pour le développement local :
+- `STRIPE_DEMO_MODE=1` **et** `NODE_ENV !== 'production'` — génère des URLs Stripe simulées et accepte des webhooks de démo protégés par `STRIPE_DEMO_WEBHOOK_SECRET`
+- Aucune clé Stripe “réelle” n'est nécessaire dans ce mode
 
-Pour basculer en mode “live”:
-1. Définir STRIPE_DEMO_MODE=0
-2. Renseigner STRIPE_SECRET_KEY et STRIPE_WEBHOOK_SECRET (et NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY côté client)
+Pour un environnement “live” (staging/production) :
+1. Laisser `STRIPE_DEMO_MODE=0` (valeur recommandée en production)
+2. Renseigner `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` et `STRIPE_WEBHOOK_SECRET`
 3. Redéployer — les mêmes routes fonctionneront avec Stripe réel (aucune recréation de route)
 
-Note: En production, STRIPE_DEMO_MODE=1 permet la démo sans clés; passez à 0 pour exiger la signature Stripe.
+Note : en production, le mode démo est désactivé; configurez toujours des clés Stripe réelles et un webhook signé.
 
 ### Vercel (Recommandé)
 ```bash

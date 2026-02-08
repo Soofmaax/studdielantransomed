@@ -54,9 +54,10 @@ Paiement Stripe
   - Auth: withAuth
   - Body: `createCheckoutSessionSchema` (courseId, date ISO future, userId)
   - Sécurité: rate limiting (60/10min/IP), validate JSON
-  - Mode démo (par défaut):
+  - Mode démo (local, non-production):
+    - Effectif uniquement quand `STRIPE_DEMO_MODE=1` et `NODE_ENV !== 'production'`
     - Retourne `{ sessionId: "demo_...", url: "https://checkout.stripe.com/pay/demo_..." }`
-  - Mode live:
+  - Mode live (production):
     - Nécessite `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
     - Crée une session Stripe réelle
 
@@ -64,7 +65,10 @@ Webhook Stripe
 - POST `/api/webhook`
   - Auth: public (stripe-signature en live)
   - Body (live): payload Stripe signé
-  - Body (démo): `{ sessionId: "demo_..." }`
+  - Body (démo): `{ sessionId: "demo_..." }` (accepté uniquement quand `STRIPE_DEMO_MODE=1` et `NODE_ENV !== 'production'`)
+  - Sécurité:
+    - Mode démo: requiert un `STRIPE_DEMO_WEBHOOK_SECRET` valide transmis via l'en-tête prévu à cet effet.
+    - Mode live: vérifie la signature Stripe via `STRIPE_WEBHOOK_SECRET`.
   - Réponse: accusé de réception + traitement éventuel (création/confirmation de booking)
 
 Notifications

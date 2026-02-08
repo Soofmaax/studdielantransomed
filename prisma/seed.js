@@ -4,14 +4,43 @@ const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
 
+// Seed credentials are driven by env vars to avoid shipping known defaults in production.
+// In production, you MUST set SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD, SEED_CLIENT_EMAIL
+// and SEED_CLIENT_PASSWORD explicitly to prevent creating users with public credentials.
+const adminEmailEnv = process.env.SEED_ADMIN_EMAIL;
+const adminPasswordEnv = process.env.SEED_ADMIN_PASSWORD;
+const clientEmailEnv = process.env.SEED_CLIENT_EMAIL;
+const clientPasswordEnv = process.env.SEED_CLIENT_PASSWORD;
+
+const adminEmail = adminEmailEnv || 'admin@studio-elan.fr';
+const adminPasswordPlain = adminPasswordEnv || 'admin123';
+const clientEmail = clientEmailEnv || 'client@example.com';
+const clientPasswordPlain = clientPasswordEnv || 'client123';
+
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    const missingSeedEnvVars = [];
+    if (!adminEmailEnv) missingSeedEnvVars.push('SEED_ADMIN_EMAIL');
+    if (!adminPasswordEnv) missingSeedEnvVars.push('SEED_ADMIN_PASSWORD');
+    if (!clientEmailEnv) missingSeedEnvVars.push('SEED_CLIENT_EMAIL');
+    if (!clientPasswordEnv) missingSeedEnvVars.push('SEED_CLIENT_PASSWORD');
+
+    if (missingSeedEnvVars.length > 0) {
+      throw new Error(
+        `Refusing to run prisma/seed.js in production because the following env vars are missing: ${missingSeedEnvVars.join(
+          ', ',
+        )}. In production you must set explicit SEED_* values instead of relying on the default admin/client credentials.`,
+      );
+    }
+  }
+
   // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = await bcrypt.hash(adminPasswordPlain, 10);
   await prisma.user.upsert({
-    where: { email: 'admin@studio-elan.fr' },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: 'admin@studio-elan.fr',
+      email: adminEmail,
       name: 'Admin',
       password: adminPassword,
       role: 'ADMIN',
@@ -19,12 +48,12 @@ async function main() {
   });
 
   // Create client user for e2e
-  const clientPassword = await bcrypt.hash('client123', 10);
+  const clientPassword = await bcrypt.hash(clientPasswordPlain, 10);
   await prisma.user.upsert({
-    where: { email: 'client@example.com' },
+    where: { email: clientEmail },
     update: {},
     create: {
-      email: 'client@example.com',
+      email: clientEmail,
       name: 'Client Test',
       password: clientPassword,
       role: 'CLIENT',

@@ -24,10 +24,10 @@ type RequestLike = {
   nextUrl: URL;
 };
 
-function makeRequest(body: WebhookDemoPayload): RequestLike {
+function makeRequest(body: WebhookDemoPayload, demoSecret: string): RequestLike {
   const url = 'http://localhost/api/webhook';
   return {
-    headers: new Headers({ 'content-type': 'application/json' }),
+    headers: new Headers({ 'content-type': 'application/json', 'x-demo-webhook-secret': demoSecret }),
     text: async () => JSON.stringify(body),
     json: async () => body,
     nextUrl: new URL(url),
@@ -36,17 +36,22 @@ function makeRequest(body: WebhookDemoPayload): RequestLike {
 
 describe('API /api/webhook (demo mode)', () => {
   const OLD_DEMO = process.env.STRIPE_DEMO_MODE;
+  const OLD_DEMO_SECRET = process.env.STRIPE_DEMO_WEBHOOK_SECRET;
 
   beforeAll(() => {
     process.env.STRIPE_DEMO_MODE = '1';
+    process.env.STRIPE_DEMO_WEBHOOK_SECRET = 'test-demo-secret';
   });
 
   afterAll(() => {
     process.env.STRIPE_DEMO_MODE = OLD_DEMO;
+    process.env.STRIPE_DEMO_WEBHOOK_SECRET = OLD_DEMO_SECRET;
   });
 
   it('accepts demo webhook payloads when demo mode is enabled', async () => {
-    const res = await WebhookPost(makeRequest({ sessionId: `demo_${Date.now()}` }) as unknown as NextRequest);
+    const res = await WebhookPost(
+      makeRequest({ sessionId: `demo_${Date.now()}` }, 'test-demo-secret') as unknown as NextRequest
+    );
 
     expect(res.status).toBe(200);
 
